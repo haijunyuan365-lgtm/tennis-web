@@ -390,7 +390,7 @@ export default {
       },
       x: 0,
       z: 0,
-      realOut: true,
+      realOut: false,
       passedCoordinatesCount: 0,
       tennisBall: {
         position: new THREE.Vector3()

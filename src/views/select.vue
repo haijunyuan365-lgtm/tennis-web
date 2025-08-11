@@ -347,40 +347,43 @@ export default {
       const selectedPlayers = this.selectedPlayers();
       const playersInRegionA = this.playersInRegionA();
       const playersInRegionB = this.playersInRegionB();
-      if (this.canConfirm) {
-        if (this.gameMode === "single") {
-          this.$message.success(
-            `单打模式确认成功!A区:${playersInRegionA[0].name}, B区:${playersInRegionB[0].name}`
-          );
-        } else {
-          this.$message.success(
-            `双打模式确认成功!A区:${playersInRegionA
-              .map((p) => p.name)
-              .join()}, B区:${playersInRegionB.map((p) => p.name).join()}`
-          );
-        }
-      } else {
-        if (this.gameMode === "single") {
-          if (selectedPlayers.length < 2) {
-            this.$message.error(
-              `还需${2 - selectedPlayers.length}人:A区还需${
-                1 - playersInRegionA.length
-              }人, B区还需${1 - playersInRegionB.length}人`
-            );
-          }
-        } else {
-          if (selectedPlayers.length < 4) {
-            this.$message.error(
-              `还需${4 - selectedPlayers.length}人:A区还需${
-                2 - playersInRegionA.length
-              }人, B区还需${2 - playersInRegionB.length}人`
-            );
-          }
-        }
-      }
       // 当未选择赛制且表单有效时，显示赛制对话框
       if (!this.matchRules && this.canConfirm) {
         this.ruleDialogVisible = true;
+      }else{
+        if (this.canConfirm) {
+          if (this.gameMode === "single") {
+            this.$message.success(
+              `单打模式确认成功!A区:${playersInRegionA[0].name}, B区:${playersInRegionB[0].name}`
+            );
+          } else {
+            this.$message.success(
+              `双打模式确认成功!A区:${playersInRegionA
+                .map((p) => p.name)
+                .join()}, B区:${playersInRegionB.map((p) => p.name).join()}`
+            );
+          }
+
+          // 成功则路由跳转
+          this.$router.push('/matching')
+        } else {
+          if (this.gameMode === "single") {
+            if (selectedPlayers.length < 2) {
+              this.$message.error(
+                `还需${2 - selectedPlayers.length}人:A区还需${1 - playersInRegionA.length
+                }人, B区还需${1 - playersInRegionB.length}人`
+              );
+            }
+          } else {
+            if (selectedPlayers.length < 4) {
+              this.$message.error(
+                `还需${4 - selectedPlayers.length}人:A区还需${2 - playersInRegionA.length
+                }人, B区还需${2 - playersInRegionB.length}人`
+              );
+            }
+          }
+        }
+
       }
     },
 

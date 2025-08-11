@@ -13,6 +13,10 @@ const routes = [
     redirect: '/huanying',
   },
   {
+    path: '/tennis3D',
+    component: () => import("../views/Tennis3DShotChart.vue")
+  },
+  {
     path: '/huanying',
     component: () => import("../views/huanying.vue")
   },
@@ -43,10 +47,6 @@ const routes = [
   {
     path: '/score',
     component: () => import("../views/score.vue")
-  },
-  {
-    path: '/placement',
-    component: () => import("../views/placement.vue")
   }
 ]
 

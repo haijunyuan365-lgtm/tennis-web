@@ -55,7 +55,7 @@
             <i :class="isExperienceStarted ? 'fas fa-running' : 'fas fa-play-circle'"></i>
           </button>
           <div class="button-container-others">
-            <el-button plain icon="el-icon-date" @click="goToMatchSystem">赛制选择</el-button>
+            <!-- <el-button plain icon="el-icon-date" @click="goToMatchSystem">赛制选择</el-button> -->
             <el-button plain icon="el-icon-circle-plus-outline" @click="addPlayer">系统登录</el-button>
             <el-button plain icon="el-icon-warning-outline" @click="goToAbout">关于</el-button>
           </div>
@@ -70,33 +70,6 @@
         </span>
       </el-dialog>
 
-      <!-- 赛制选择对话框 -->
-      <!-- <el-dialog title="赛制选择" :visible.sync="matchSystemDialogVisible" width="50%">
-        <el-form :model="form" ref="MatchSystemForm">
-          <el-form-item label="XXX" prop="name" :label-width="formLabelWidth">
-            <el-select v-model="form.name" placeholder="请选择xxx">
-              <el-option label="xxx" value="shanghai"></el-option>
-              <el-option label="xxx" value="beijing"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="XXX" prop="region" :label-width="formLabelWidth">
-            <el-select v-model="form.region" placeholder="请选择XXX">
-              <el-option label="xxx" value="shanghai"></el-option>
-              <el-option label="xxx" value="beijing"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="XXX" prop="sex" :label-width="formLabelWidth">
-            <el-select v-model="form.sex" placeholder="请选择XXX">
-              <el-option label="xxx" value="shanghai"></el-option>
-              <el-option label="xxx" value="beijing"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="matchSystemDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="saveToMatchSystem">确定</el-button>
-        </span>
-      </el-dialog> -->
       <MatchRuleDialog v-model="matchSystemDialogVisible" @confirm="handleRuleConfirm" />
 
     </div>
@@ -154,6 +127,14 @@ export default {
     // clearInterval(this.timer);
   },
   computed: {
+    playerNumber() {
+      const num = this.users.length
+      if(num > 8){
+        return false
+      }else{
+        true
+      }
+    }
   },
   methods: {
     //接收后端传来的数据，进行人数的判断，并提示消息
@@ -190,25 +171,6 @@ export default {
     goToAbout() {
       this.aboutDialogVisible = true;
     },
-    // 设置赛制(弃用)
-    saveToMatchSystem() {
-
-      // 表单校验（下面所有逻辑都放在表单校验成功的逻辑中）
-
-      // 发请求，赛制保存到数据库或者保存到vuex中
-
-      // 先关闭对话框
-      this.matchSystemDialogVisible = false;
-
-      // 标记为已设置赛制
-      this.isSetMatch = true;
-
-      // 然后重置表单
-      this.$nextTick(() => {
-        this.$refs['MatchSystemForm'].resetFields();
-        // console.log(this.$refs['MatchSystemForm']);
-      });
-    },
     handleRuleConfirm(value) {
 
       // 表单校验（下面所有逻辑都放在表单校验成功的逻辑中）
@@ -236,14 +198,15 @@ export default {
     //开始体验
     start() {
       //是否已经设置赛制,若未设置则弹出提示框
-      if (!this.isSetMatch) {
-        this.matchSystemDialogVisible = true;
-      }
-      // console.log(this.userNumber);
-      if (this.isSetMatch){
-        //跳转到其他页面
-        this.$router.push('/select')
-      }
+      // if (!this.isSetMatch) {
+      //   this.matchSystemDialogVisible = true;
+      // }
+      // if (this.isSetMatch){
+      //   //跳转到其他页面
+      //   this.$router.push('/select')
+      // }
+
+      this.$router.push('/select')
 
     }
   },
