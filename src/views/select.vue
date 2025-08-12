@@ -17,7 +17,10 @@
               <div class="court-title">网球场地示意图</div>
               <!-- 场地布局 -->
               <div class="court-layout">
-                <img class="tenniscourt" src="../assets/image/tenniscourt.jpg" />
+                <img
+                  class="tenniscourt"
+                  src="../assets/image/tenniscourt.jpg"
+                />
               </div>
             </div>
           </div>
@@ -28,6 +31,11 @@
           <!-- 右侧顶部标题 -->
           <div class="players-header">
             <h2 class="artistic-title">智能网球系统</h2>
+          </div>
+          <!--  畅打/比赛模式显示 -->
+          <div class="play-mode-display">
+            <span>当前模式为：</span>
+            <div class="play-mode-text">{{ playModeText }}</div>
           </div>
           <!-- 单双打、赛制设置 -->
           <div class="settings-panel">
@@ -103,7 +111,7 @@
                 </el-table-column>
               </el-table>
             </div>
-            <!-- 确认按钮 -->
+            <!-- 开始按钮 -->
             <div class="confirm-btn">
               <el-button
                 type="primary"
@@ -116,12 +124,12 @@
           </div>
           <!-- 返回、历史记录按钮 -->
           <div class="action-footer">
-            <el-button
+            <!-- <el-button
               type="info"
               icon="el-icon-notebook-2"
               @click="showHistory"
               >历史记录</el-button
-            >
+            > -->
             <el-button type="warning" icon="el-icon-back" @click="goBack"
               >返回</el-button
             >
@@ -142,6 +150,7 @@ export default {
       gameMode: "single", //单双打模式
       ruleDialogVisible: false, // 赛制设置弹窗显示状态
       matchRules: null, // 存储赛制设置(对象类型)
+      playMode: "match", //模式类型
       players: [
         {
           name: "学生18168686868",
@@ -226,6 +235,14 @@ export default {
         );
       }
     },
+    // 模式显示文本
+    playModeText() {
+      if (this.playMode === "causal") {
+        return "畅打模式";
+      }else{
+        return "比赛模式";
+      }
+    },
   },
   mounted() {
     // 初始化单双打模式并自动分配区域（人数足够时）
@@ -258,9 +275,7 @@ export default {
           // 单打模式：默认第一个选A边，第二个选B边
           this.players[0].selected = "A";
           this.players[1].selected = "B";
-          this.$message.success(
-            "已切换到单打模式,最多可选择2名球员(A区和B区各1人)"
-          );
+          this.$message.success("已切换到单打模式,最多可选择2名球员");
         }
       } else {
         if (this.players.length < 4) {
@@ -272,9 +287,7 @@ export default {
           this.players[1].selected = "A";
           this.players[2].selected = "B";
           this.players[3].selected = "B";
-          this.$message.success(
-            "已切换到双打模式,最多可选择4名球员(A区和B区各2人)"
-          );
+          this.$message.success("已切换到双打模式,最多可选择4名球员");
         }
       }
     },
@@ -381,14 +394,17 @@ export default {
       // 当未选择赛制且表单有效时，显示赛制对话框
       if (!this.matchRules && this.canConfirm) {
         this.ruleDialogVisible = true;
+      } else {
+        //已选择赛制直接跳转
+        this.$router.push("/matching");
       }
     },
 
-    showHistory() {
-      this.$message.info("显示历史记录");
-    },
+    // showHistory() {
+    //   this.$message.info("显示历史记录");
+    // },
     goBack() {
-      this.$message.info("返回上一级");
+      this.$router.push("/login");
     },
     // 添加行样式方法
     tableRowClassName({ row }) {
@@ -398,13 +414,13 @@ export default {
     // 处理赛制设置确认
     handleRuleConfirm(rules) {
       this.matchRules = rules;
-      console.log("赛制设置:", rules); //form+isCustom
+      // console.log("赛制设置:", rules); //form+isCustom
 
       // 根据赛制设置显示不同的提示信息
       if (rules.isCustom) {
         //isCustom为true：自定义赛制
         this.$message.success(
-          `自定义赛制设置成功！盘数：${rules.gameNumber}, 决胜局: ${rules.tiebreak}, 局数: ${rules.games}, 获胜局: ${rules.winGame}, 换边: ${rules.sideChange}`
+          `自定义赛制设置成功！盘数：${rules.gameNumber},局数: ${rules.games}, 决胜局: ${rules.tiebreak},  获胜局: ${rules.winGame}, 换边: ${rules.sideChange}`
         );
       } else {
         this.$message.success(
@@ -575,12 +591,22 @@ body,
 /* 在全局样式中添加Google Fonts引用 */
 @import url("https://fonts.googleapis.com/css2?family=Lobster&display=swap");
 
+/* 畅打/比赛模式显示 */
+.play-mode-display {
+  display: flex;
+  justify-content: center;
+}
+.play-mode-text {
+  color: #3b82f6;
+  font-weight: bold;
+}
+
 /* 单双打、赛制设置样式 */
 .settings-panel {
   display: flex;
   justify-content: space-between;
 }
-/* 模式选择单选框 */
+/* 单双打选择单选框 */
 .mode-selector {
   margin-left: 5px;
   margin-bottom: 10px;
@@ -588,34 +614,6 @@ body,
 /*赛制设置按钮样式*/
 .rule-dialog {
   margin-right: 10px;
-}
-
-/* .rule-dialog .el-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: #667eea;
-  color: white;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.rule-dialog .el-button:hover {
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-} */
-/* 选择状态显示 */
-.selection-status {
-  margin-top: 10px;
-  padding: 8px 12px;
-  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-  border-radius: 8px;
-  /* border-left: 4px solid #2563eb; */
-}
-
-.status-text {
-  font-size: 14px;
-  color: #475569;
-  font-weight: 500;
 }
 
 /* 球员列表和确认按钮 */
@@ -627,7 +625,7 @@ body,
 }
 /* 球员列表样式 - 使用背景色替代边框 */
 .players-table {
-  height: 400px; /* 减去按钮区域高度 */
+  height: 500px; /* 减去按钮区域高度 */
   /* overflow-y: auto; */
   border-radius: 12px;
   background: #f8fafc;
@@ -735,8 +733,8 @@ body,
 /* 右下角按钮 */
 .action-footer {
   position: absolute;
-  right: 0;
-  bottom: 0;
+  right: 10px;
+  bottom: 10px;
   z-index: 90; /* 低于模式按钮 */
   display: flex;
   gap: 15px;

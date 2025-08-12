@@ -108,11 +108,11 @@ export default {
       activeTab: "regular", // 当前激活的标签页'regular'或'custom'
       // 表单数据对象
       form: {
-        gameNumber: "", //盘数
-        tiebreak: "", //决胜局
-        games: "", //局数
-        winGame: "", //获胜规则
-        sideChange: "", //换边规则
+        gameNumber: "3盘", //盘数
+        games: "6局", //局数
+        tiebreak: "抢7", //决胜局
+        winGame: "No-Ad", //获胜规则
+        sideChange: "自动", //换边规则
       },
       // 预设常规赛制选项文本
       defaultData: [
@@ -123,21 +123,21 @@ export default {
       defaultForm: [
         {
           gameNumber: "1盘",
-          tiebreak: "抢7",
           games: "6局",
+          tiebreak: "抢7",
           winGame: "No-Ad",
           sideChange: "自动",
         },
         {
           gameNumber: "3盘",
-          tiebreak: "抢7",
           games: "6局",
+          tiebreak: "抢7",
           winGame: "No-Ad",
           sideChange: "自动",
         },
       ],
       // 自定义选项左侧标签
-      textOptions: ["盘数", "决胜局", "局 数", "获胜局", "换 边"],
+      textOptions: ["盘数", "局 数", "决胜局", "获胜局", "换 边"],
       /* gameNumberOption: ["1盘", "3盘", "5盘"],
       tiebreakOptions: ["抢5", "抢7", "抢10"],
       gamesOptions: ["3局", "4局", "6局"],
@@ -146,16 +146,16 @@ export default {
       // 自定义选项右侧可选项
       Options: [
         ["1盘", "3盘", "5盘"],
-        ["抢5", "抢7", "抢10"],
         ["3局", "4局", "6局"],
+        ["抢5", "抢7", "抢10"],
         ["AD", "No-Ad"],
         ["自动", "手动"],
       ],
       // 自定义选项对应的表单字段名
       optionsTitle: [
         "gameNumber",
-        "tiebreak",
         "games",
+        "tiebreak",
         "winGame",
         "sideChange",
       ],
@@ -197,7 +197,7 @@ export default {
       if (this.activeTab === "custom") {
         this.optionsTitle.forEach((item) => {
           if (!this.form[item]) {
-            this.form[item] = this.Options[this.optionsTitle.indexOf(item)][0];//第一个选项为默认值
+            this.form[item] = this.Options[this.optionsTitle.indexOf(item)][0]; //第一个选项为默认值
           }
         });
       }
@@ -236,8 +236,8 @@ export default {
         if (missingItems.length > 0) {
           const optionName = {
             gameNumber: "盘数",
-            tiebreak: "决胜局",
             games: "局数",
+            tiebreak: "决胜局",
             winGame: "获胜局",
             sideChange: "换边",
           };
@@ -253,11 +253,11 @@ export default {
     // 重置表单数据
     resetForm() {
       this.form = {
-        gameNumber: "",
-        tiebreak: "",
-        games: "",
-        winGame: "",
-        sideChange: "",
+        gameNumber: "3盘",
+        games: "6局",
+        tiebreak: "抢7",
+        winGame: "No-Ad",
+        sideChange: "自动",
       };
     },
   },
