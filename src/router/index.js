@@ -10,7 +10,7 @@ const routes = [
   },
   {
     path: '/',
-    redirect: '/huanying',
+    redirect: '/login ',
   },
   {
     path: '/tennis3D',

@@ -108,11 +108,11 @@ export default {
       activeTab: "regular", // 当前激活的标签页'regular'或'custom'
       // 表单数据对象
       form: {
-        gameNumber: "", //盘数
-        tiebreak: "", //决胜局
-        games: "", //局数
-        winGame: "", //获胜规则
-        sideChange: "", //换边规则
+        gameNumber: "3盘",
+        tiebreak: "抢7",
+        games: "6局",
+        winGame: "No-Ad",
+        sideChange: "自动",
       },
       // 预设常规赛制选项文本
       defaultData: [
@@ -265,7 +265,7 @@ export default {
     // 监听弹窗显示状态，打开时重置表单数据
     visible(newVal) {
       if (newVal) {
-        this.resetForm();
+        // this.resetForm();
       }
     },
   },
