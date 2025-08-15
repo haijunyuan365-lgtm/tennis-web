@@ -8,6 +8,13 @@ import store from './store'
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
+// 配置全局消息默认选项
+// Vue.use(ElementUI, {
+//   message: {
+//     duration: 1500, 
+//     showClose: true 
+//   }
+// })
 Vue.use(router)
  new Vue({
   store,

@@ -265,7 +265,7 @@ export default {
     // 监听弹窗显示状态，打开时重置表单数据
     visible(newVal) {
       if (newVal) {
-        this.resetForm();
+        // this.resetForm();
       }
     },
   },

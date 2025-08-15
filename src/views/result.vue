@@ -23,6 +23,7 @@
             </template>
             <el-row>
               <el-col :span="24" class="exit-button-container">
+                <el-button type="primary" @click="toTennis3D">落点统计</el-button>
                 <el-button type="primary" @click="exit">退出</el-button>
               </el-col>
             </el-row>
@@ -83,6 +84,9 @@ export default {
 
       // 跳转页面
       this.$router.push('/matching')
+    },
+    toTennis3D() {
+      this.$router.push('/tennis3D')
     }
   }
 }
