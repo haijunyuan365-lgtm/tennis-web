@@ -1,45 +1,87 @@
 <template>
-<div id="ui-container">
-  <h1>网球轨迹可视化系统</h1>
-  <div class="control-group">
-    <h2>控制</h2>
-    <div class="btn-group">
-      <button id="startBtn" @click="startAnimation">开始</button>
-      <button id="pauseBtn" @click="togglePause">暂停/继续</button>
-      <button id="resetBtn" @click="resetAnimation">重置</button>
+  <div id="ui-container">
+    <h1>网球轨迹可视化系统</h1>
+    
+    <!-- 居中动画控制按钮 -->
+    <div class="control-group centered">
+      <div>
+        <button @click="togglePause" class="centered-button">
+          {{ isPaused ? '继续动画' : '暂停动画' }}
+        </button>
+      </div>
+    </div>
+    
+    <!-- 回合选择按钮 -->
+    <div class="control-group">
+      <h2>回合选择</h2>
+      <div class="btn-group">
+        <button 
+          v-for="round in rounds" 
+          :key="round.id"
+          :class="{ active: activeRound === round.id }"
+          @click="selectRound(round.id)"
+        >
+          {{ round.label }}
+        </button>
+      </div>
     </div>
   </div>
-</div>
 </template>
 
 <script>
-  export default {
-    data(){
-      return{
-        isAnimating:true,
-      }
-    },
-    methods:{
-      startAnimation() {
-        this.isAnimating=true;
-        this.sendAnimation();
-      },
-      
-      togglePause() {
-        this.isAnimating=!this.isAnimating;
-        this.sendAnimation();
-      },
-      
-      resetAnimation() {
-        this.isAnimating=true;
-      },
+export default {
+  data() {
+    return {
+      isPaused: false,
+      activeRound: 1,
+      rounds: [
+        { id: 1, label: "回合1" },
+        { id: 2, label: "回合2" },
+        { id: 3, label: "回合3" }
+      ]
+    }
+  },
 
-      sendAnimation(){
-        this.$bus.$emit("animation",this.isAnimating);
-      },
+  mounted() {
+    // 从localStorage加载保存的回合
+    this.loadSavedRound();
+  },
+  
+  methods: {
+    // 从localStorage加载保存的回合
+    loadSavedRound() {
+      const savedRound = localStorage.getItem("roundId");
+      
+      // 如果localStorage中有保存的回合，使用它
+      if (savedRound !== null && savedRound !== undefined) {
+        const roundId = parseInt(savedRound);
+        
+        // 确保回合ID有效
+        if (this.rounds.some(round => round.id === roundId)) {
+          this.activeRound = roundId;
+        } else {
+          console.warn("无效的回合ID:", savedRound);
+        }
+      }
+      
+    },
+    
+    togglePause() {
+      this.isPaused = !this.isPaused;
+      this.$bus.$emit("animation", !this.isPaused);
+    },
+    
+    selectRound(roundId) {
+      this.activeRound = roundId;
+      
+      // 保存到localStorage
+      localStorage.setItem("roundId", roundId);
+      
+      window.location.reload()
 
     }
   }
+}
 </script>
 
 <style scoped>
@@ -55,6 +97,7 @@
   max-width: 320px;
   backdrop-filter: blur(5px);
   border: 1px solid rgba(100, 200, 255, 0.2);
+  font-family: 'Arial', sans-serif;
 }
 
 h1 {
@@ -72,36 +115,100 @@ h1 {
   background: rgba(0, 30, 60, 0.6);
 }
 
+.control-group.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px auto;
+  padding: 15px;
+  max-width: 300px;
+}
+
 h2 {
   margin-bottom: 12px;
   font-size: 1.3rem;
   color: #81d4fa;
+  text-align: center;
 }
 
 .btn-group {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  flex-wrap: wrap;
+}
+
+.centered-button {
+  background: linear-gradient(to bottom, #2196F3, #0d47a1);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  min-width: 180px;
+  font-size: 1.1rem;
+  text-align: center;
+  display: flex;
   justify-content: center;
+  align-items: center;
+}
+
+.centered-button:hover {
+  background: linear-gradient(to bottom, #42a5f5, #1e88e5);
+  transform: translateY(-3px);
+  box-shadow: 0 7px 20px rgba(0, 0, 0, 0.4);
+}
+
+.centered-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 button {
   background: linear-gradient(to bottom, #2196F3, #0d47a1);
   color: white;
   border: none;
-  padding: 10px 18px;
+  padding: 10px;
   border-radius: 30px;
   cursor: pointer;
   font-weight: bold;
   transition: all 0.3s ease;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  min-width: 120px;
+  min-width: 80px;
   z-index: 20;
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 button:hover {
   background: linear-gradient(to bottom, #42a5f5, #1e88e5);
   transform: translateY(-3px);
   box-shadow: 0 7px 14px rgba(0, 0, 0, 0.3);
+}
+
+button.active {
+  background: linear-gradient(to bottom, #4caf50, #2e7d32);
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  #ui-container {
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+  
+  .control-group.centered {
+    max-width: 100%;
+  }
+  
+  .centered-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    width: 100%;
+  }
 }
 </style>

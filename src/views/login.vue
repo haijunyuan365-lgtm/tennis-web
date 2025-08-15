@@ -19,19 +19,33 @@
       <!-- 右侧：用户列表 -->
       <div class="right-users">
         <div class="header">
+          <div class="header-gameMode">模式：{{gameMode}}</div>
           <h1 class="title">智能网球系统</h1>
         </div>
         <div class="right-panel">
           <div class="user-list">
-
             <div class="users-container">
               <el-table v-if="!(users.length === 0)" :data="users" style="width: 100%" height="680"
                 :header-cell-style="{ background: '#1E8FD5', color: '#fff' }">
-                <el-table-column prop="time" label="加入时间" min-width="200">
+                <el-table-column prop="time"  label="加入时间" width="225">
                 </el-table-column>
-                <el-table-column prop="name" label="姓名" min-width="200">
+                <el-table-column prop="name"  label="姓名" width="225">
                 </el-table-column>
-                <el-table-column label="" min-width="50">
+                <el-table-column width="225" align="center" label="惯用手">
+                  <template slot-scope="{ row }">
+                    <el-radio-group v-model="row.selected" size="medium">
+                      <el-radio-button label="left" border
+                        @click.native.prevent="toggleRegion(row, 'left', $event)">
+                        左手
+                      </el-radio-button>
+                      <el-radio-button label="right" border
+                        @click.native.prevent="toggleRegion(row, 'right', $event)">
+                        右手
+                      </el-radio-button>
+                    </el-radio-group>
+                  </template>
+                </el-table-column>
+                <el-table-column label="删除" width="50">
                   <template #default="scope">
                     <el-button type="danger" icon="el-icon-delete" circle
                       @click="handleDelete(scope.$index, scope.row)"></el-button>
@@ -55,7 +69,7 @@
             <i :class="isExperienceStarted ? 'fas fa-running' : 'fas fa-play-circle'"></i>
           </button>
           <div class="button-container-others">
-            <el-button plain icon="el-icon-date" @click="goToMatchSystem">赛制选择</el-button>
+            <!-- <el-button plain icon="el-icon-date" @click="goToMatchSystem">赛制选择</el-button> -->
             <el-button plain icon="el-icon-circle-plus-outline" @click="addPlayer">系统登录</el-button>
             <el-button plain icon="el-icon-warning-outline" @click="goToAbout">关于</el-button>
           </div>
@@ -70,33 +84,6 @@
         </span>
       </el-dialog>
 
-      <!-- 赛制选择对话框 -->
-      <!-- <el-dialog title="赛制选择" :visible.sync="matchSystemDialogVisible" width="50%">
-        <el-form :model="form" ref="MatchSystemForm">
-          <el-form-item label="XXX" prop="name" :label-width="formLabelWidth">
-            <el-select v-model="form.name" placeholder="请选择xxx">
-              <el-option label="xxx" value="shanghai"></el-option>
-              <el-option label="xxx" value="beijing"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="XXX" prop="region" :label-width="formLabelWidth">
-            <el-select v-model="form.region" placeholder="请选择XXX">
-              <el-option label="xxx" value="shanghai"></el-option>
-              <el-option label="xxx" value="beijing"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="XXX" prop="sex" :label-width="formLabelWidth">
-            <el-select v-model="form.sex" placeholder="请选择XXX">
-              <el-option label="xxx" value="shanghai"></el-option>
-              <el-option label="xxx" value="beijing"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="matchSystemDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="saveToMatchSystem">确定</el-button>
-        </span>
-      </el-dialog> -->
       <MatchRuleDialog v-model="matchSystemDialogVisible" @confirm="handleRuleConfirm" />
 
     </div>
@@ -112,13 +99,13 @@ export default {
   data() {
     return {
       users: [
-        { name: '张伟', time: '10:25:42', color: 'linear-gradient(45deg, #6a9bd8, #8e44ad)' },
-        { name: '李娜', time: '10:26:15', color: 'linear-gradient(45deg, #ff9a9e, #fad0c4)' },
-        { name: '王涛', time: '10:27:03', color: 'linear-gradient(45deg, #a1c4fd, #c2e9fb)' },
-        { name: '刘洋', time: '10:28:22', color: 'linear-gradient(45deg, #ffecd2, #fcb69f)' },
-        { name: '陈明', time: '10:29:47', color: 'linear-gradient(45deg, #84fab0, #8fd3f4)' },
-        { name: '王涛', time: '10:27:03', color: 'linear-gradient(45deg, #a1c4fd, #c2e9fb)' },
-        { name: '刘洋', time: '10:28:22', color: 'linear-gradient(45deg, #ffecd2, #fcb69f)' },
+        { name: '张伟', time: '10:25:42',selected:'right' },
+        { name: '李娜', time: '10:26:15',selected:'right' },
+        { name: '王涛', time: '10:27:03',selected:'right' },
+        { name: '刘洋', time: '10:28:22',selected:'right' },
+        { name: '陈明', time: '10:29:47',selected:'right' },
+        { name: '王涛', time: '10:27:03',selected:'right' },
+        { name: '刘洋', time: '10:28:22',selected:'right' },
       ],
       form: {
         name: '',
@@ -141,6 +128,7 @@ export default {
       playerId: -1,
       isSetMatch: false,
       // userNumber:-1
+      gameMode:'畅打'
     }
   },
   components: {
@@ -154,8 +142,31 @@ export default {
     // clearInterval(this.timer);
   },
   computed: {
+    playerNumber() {
+      const num = this.users.length
+      if(num > 8){
+        return false
+      }else{
+        true
+      }
+    }
   },
   methods: {
+      // 选择/取消区域
+      toggleRegion(row, region, event) {
+        // 阻止默认行为（避免与单选框自身逻辑冲突）
+        event.preventDefault();
+
+        // 如果点击区域当前已选择，则取消选择
+        if (row.selected === region) {
+          row.selected = null;
+          return;
+        }
+
+        // 选择该区域
+        row.selected = region;
+      },
+
     //接收后端传来的数据，进行人数的判断，并提示消息
 
 
@@ -163,51 +174,25 @@ export default {
       this.matchSystemDialogVisible = true;
     },
     addPlayer() {
-      if (this.users.length > 8) {
-        this.$message.error('超出人数限制')
-      } else {
         if (this.playerId == -1) {
           this.playerId = this.users.length + 1;
           this.users.push({
             time: '10:25:42',
             name: 'Player ' + this.playerId,
-            region: '',
-            sex: '',
+            selected: 'right'
           })
         } else {
           this.playerId++;
           this.users.push({
             time: '10:25:42',
             name: 'Player ' + this.playerId,
-            region: '',
-            sex: '',
+            selected:'right'
           })
         }
         // this.userNumber = this.users.length
-      }
-
     },
     goToAbout() {
       this.aboutDialogVisible = true;
-    },
-    // 设置赛制(弃用)
-    saveToMatchSystem() {
-
-      // 表单校验（下面所有逻辑都放在表单校验成功的逻辑中）
-
-      // 发请求，赛制保存到数据库或者保存到vuex中
-
-      // 先关闭对话框
-      this.matchSystemDialogVisible = false;
-
-      // 标记为已设置赛制
-      this.isSetMatch = true;
-
-      // 然后重置表单
-      this.$nextTick(() => {
-        this.$refs['MatchSystemForm'].resetFields();
-        // console.log(this.$refs['MatchSystemForm']);
-      });
     },
     handleRuleConfirm(value) {
 
@@ -236,14 +221,15 @@ export default {
     //开始体验
     start() {
       //是否已经设置赛制,若未设置则弹出提示框
-      if (!this.isSetMatch) {
-        this.matchSystemDialogVisible = true;
-      }
-      // console.log(this.userNumber);
-      if (this.isSetMatch){
-        //跳转到其他页面
-        this.$router.push('/select')
-      }
+      // if (!this.isSetMatch) {
+      //   this.matchSystemDialogVisible = true;
+      // }
+      // if (this.isSetMatch){
+      //   //跳转到其他页面
+      //   this.$router.push('/select')
+      // }
+
+      this.$router.push('/select')
 
     }
   },
@@ -288,6 +274,19 @@ export default {
 .header {
   text-align: center;
   margin-top: 30px;
+  position: relative;
+}
+
+.header-gameMode {
+  position:absolute;
+  left: 35px;
+  color: #547fa2;
+  font-size: 30px;
+  font-weight: 700;
+  width: 150px;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
 }
 
 .title {
@@ -432,6 +431,16 @@ export default {
   flex: 1;
   overflow-y: auto;
   max-height: 700px;
+}
+
+/* 穿透 Element UI 的作用域，找到滚动容器 */
+::v-deep .el-table__body-wrapper {
+  overflow-y: auto;
+  scrollbar-gutter: stable end;
+}
+
+.el-table__body-wrapper::-webkit-scrollbar {
+  width: 8px;
 }
 
 /* 按钮区域 */
