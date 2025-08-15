@@ -362,10 +362,15 @@ export default {
                 .map((p) => p.name)
                 .join()}, B区:${playersInRegionB.map((p) => p.name).join()}`
             );
+
           }
 
-          // 成功则路由跳转
-          this.$router.push('/matching')
+          // 跳转，新增判断页面跳转
+        if(localStorage.getItem('mode') ==='比赛'){
+          this.$router.push('/gameMode')
+        }else{
+          this.$router.push('/SmoothPlayMode')
+        }
         } else {
           if (this.gameMode === "single") {
             if (selectedPlayers.length < 2) {

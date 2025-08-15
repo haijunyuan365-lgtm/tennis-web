@@ -1,12 +1,12 @@
 <template>
   <div class="tennis-container">
-    <!-- 顶部栏 --><div>test</div>
+    <!-- 顶部栏 -->
     <el-row class="top-bar" type="flex" justify="space-between" align="middle">
       <el-col :span="8" class="left-section">
         <h1>智能网球</h1>
       </el-col>
       <el-col :span="8" class="center-section">
-        <div class="match-mode-tag"><span class="match-text">{{ gameMode }}（单打）</span></div>
+        <div class="match-mode-tag"><span class="match-text">比赛模式（单打）</span></div>
       </el-col>
       <el-col :span="8" class="right-section"><span class="current-time">时间：{{ formattedTime }}</span></el-col>
     </el-row>
@@ -51,25 +51,10 @@
       <el-col :span="12" class="data-table-container">
         <div class="table-wrapper">
           <!-- 表格顶部信息栏 -->
-          <div v-if="gameMode === '畅打模式'" class="table-info-bar"><span>第{{ currentRow + 1 }}/{{ tableData.length }}条（第{{
-              currentRound }}/{{ maxRound }}回合）</span></div>
-          <div v-if="gameMode === '比赛模式'" class="table-info-bar"><span>第{{ currentRow + 1 }}/{{ tableData.length }}条（第{{
-              currentRound }}/{{ maxRound }}回合）</span></div>
+          <div class="table-info-bar"><span>第{{ currentRow + 1 }}/{{ tableData.length }}条（第{{
+            currentRound }}/{{ maxRound }}回合）</span></div>
           <!-- 表格主体 -->
-          <el-table v-if="gameMode === '比赛模式'" ref="tennisTable" :data="pagedTableData" border
-            height="calc(100% - 90px)" highlight-current-row @current-change="handleCurrentChange">
-            <el-table-column prop="time" label="时间" min-width="120" align="center"></el-table-column>
-            <el-table-column prop="player" label="姓名" min-width="100" align="center"></el-table-column>
-            <el-table-column prop="direction" label="方向" min-width="100" align="center">
-              <template slot-scope="scope"><span>{{ scope.row.direction === 'A' ? 'A→B' : 'B→A' }}</span></template>
-            </el-table-column>
-            <el-table-column prop="type" label="类型" min-width="100" align="center"></el-table-column>
-            <el-table-column prop="result" label="结果" min-width="100" align="center"></el-table-column>
-            <el-table-column prop="speed" label="速度(km/h)" min-width="120" align="center"></el-table-column>
-            <el-table-column prop="rotation" label="转速(rp/m)" min-width="120" align="center"></el-table-column>
-          </el-table>
-
-          <el-table v-if="gameMode === '畅打模式'" ref="tennisTable" :data="tableData" border height="calc(100% - 90px)"
+          <el-table ref="tennisTable" :data="pagedTableData" border height="calc(100% - 90px)"
             highlight-current-row @current-change="handleCurrentChange">
             <el-table-column prop="time" label="时间" min-width="120" align="center"></el-table-column>
             <el-table-column prop="player" label="姓名" min-width="100" align="center"></el-table-column>
@@ -81,9 +66,8 @@
             <el-table-column prop="speed" label="速度(km/h)" min-width="120" align="center"></el-table-column>
             <el-table-column prop="rotation" label="转速(rp/m)" min-width="120" align="center"></el-table-column>
           </el-table>
-
           <!-- 表格底部分页栏 -->
-          <div class="table-pagination" v-if="gameMode === '比赛模式'">
+          <div class="table-pagination">
             <el-button size="mini" :disabled="currentRound === 1" @click="goToPrevRound()">上一回合</el-button>
             <div class="page-input">
               <el-input v-model="inputPage" size="mini" style="width: 50px; margin: 0 5px;"
@@ -92,9 +76,6 @@
             </div>
             <el-button size="mini" :disabled="currentRound === maxRound" @click="goToNextRound()">下一回合</el-button>
             <el-button size="mini" @click="jumpToCurrentRound">当前回合</el-button>
-          </div>
-          <div class="table-pagination" v-if="gameMode === '畅打模式'">
-            <el-button @click="clear">清除数据</el-button>
           </div>
         </div>
       </el-col>
@@ -187,7 +168,6 @@ export default {
       currentRow: -1,//数据选中行
       inputPage: 1,
       currentSelectedRow: null,
-      gameMode: '比赛模式',
       //球场数据
       canvasWidth: 500,
       canvasHeight: 800,
@@ -195,7 +175,7 @@ export default {
       courtWidth: 700 * (10.97 / 23.77), // 约 323
       offsetX: 0,  // 稍后在 mounted 中计算赋值
       offsetY: 50,
-      isDisable:false,
+      isDisable: false,
     }
   },
   computed: {
@@ -334,16 +314,16 @@ export default {
       this.$message.info(`切换视图: ${view}`);
     },
     switchView3D() {
-      if(!this.isDisable){
+      if (!this.isDisable) {
         this.isDisable = !this.isDisable
         if (this.isDisable) {
-          this.$router.push('/matching/3D')
+          this.$router.push('/gameMode/3D')
         }
       }
     },
     switchView2D() {
       this.activeView = '2d'
-      if(this.isDisable){
+      if (this.isDisable) {
         this.isDisable = !this.isDisable
         this.$router.push('/matching')
       }
@@ -489,14 +469,8 @@ export default {
 
       if (!this.currentSelectedRow) return;
 
-      let currentRoundPoints;
-      if (this.gameMode === '比赛模式') {
         const currentRound = this.currentSelectedRow.round;
-        currentRoundPoints = points.filter(p => p.round === currentRound);
-      } else {
-        currentRoundPoints = points;
-      }
-
+        const currentRoundPoints = points.filter(p => p.round === currentRound);
       // 绘制非选中点
       currentRoundPoints.forEach(point => {
         if (this.currentSelectedRow && point.id === this.currentSelectedRow.id) return;
@@ -541,13 +515,13 @@ export default {
     },
 
     modeChange() {
-      this.gameMode = this.gameMode === '比赛模式' ? '畅打模式' : '比赛模式';
+      //this.gameMode = this.gameMode === '比赛模式' ? '畅打模式' : '比赛模式';
       //初始化网球场
-      const canvas = this.$refs.courtCanvas;
-      const ctx = canvas.getContext("2d");
+      // const canvas = this.$refs.courtCanvas;
+      // const ctx = canvas.getContext("2d");
 
-      this.drawCourt(ctx);
-      this.drawPoints(ctx, this.tableData);
+      // this.drawCourt(ctx);
+      // this.drawPoints(ctx, this.tableData);
     },
     goToPrevRound() {
       if (this.currentRound > 1) {
@@ -569,4 +543,292 @@ export default {
 }
 </script>
 
-<style scoped src="../assets/css/TennisMain.css"></style>
+<style scoped>
+.tennis-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Arial', 'Helvetica Neue', sans-serif;
+  background: linear-gradient(135deg, #0a1a2e 0%, #1a3a5a 100%);
+  color: #ffffff;
+}
+
+.top-bar {
+  padding: 12px 24px;
+  background: rgba(10, 26, 46, 0.95);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.match-mode-tag {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.match-text {
+  padding: 6px 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #FFD700;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.7);
+  position: relative;
+  letter-spacing: 1px;
+}
+
+.match-text::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 215, 0, 0.8) 30%, rgba(255, 215, 0, 0.8) 70%, transparent 100%);
+}
+
+.top-bar h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  color: #FFD700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.current-time {
+  float: right;
+  font-size: 20px;
+  font-family: 'Courier New', monospace;
+  color: #00E5FF;
+}
+
+.middle-section {
+  flex: 1;
+  overflow: hidden;
+  padding: 15px;
+  box-sizing: border-box;
+  background: rgba(10, 26, 46, 0.7);
+}
+
+.data-table-container {
+  height: 100%;
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(26, 58, 90, 0.8);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.table-info-bar {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, rgba(10, 26, 46, 0.9) 0%, rgba(26, 58, 90, 0.9) 100%);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+  font-size: 16px;
+  color: #B5EAD7;
+  padding: 0 15px;
+  font-weight: 500;
+}
+
+.table-pagination {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, rgba(10, 26, 46, 0.8) 0%, rgba(26, 58, 90, 0.8) 100%);
+  border-top: 1px solid rgba(255, 215, 0, 0.2);
+  padding: 0 15px;
+}
+
+.camera-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-left: 10px;
+}
+
+.camera-controls {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 15px;
+  background: rgba(26, 58, 90, 0.9);
+  border-radius: 8px 8px 0 0;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-bottom: none;
+}
+
+.video-preview {
+  flex: 1;
+  background: linear-gradient(135deg, #0a1a2e 0%, #1a3a5a 100%);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-top: none;
+  position: relative;
+}
+
+.placeholder {
+  text-align: center;
+  z-index: 1;
+}
+
+.placeholder p:first-child {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #FFD700;
+}
+
+.placeholder p:last-child {
+  font-size: 18px;
+  color: #B5EAD7;
+}
+
+.bottom-controls {
+  padding: 12px 24px;
+  background: rgba(10, 26, 46, 0.95);
+  border-top: 1px solid rgba(255, 215, 0, 0.4);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.action-info {
+  margin-left: 20px;
+  font-weight: 500;
+  color: #B5EAD7;
+  font-size: 16px;
+}
+
+.right-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.el-button {
+  background: rgba(26, 58, 90, 0.9);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  color: #ffffff;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  font-size: 14px;
+  padding: 10px 15px;
+}
+
+.el-button:hover {
+  background: rgba(255, 215, 0, 0.3);
+}
+
+.el-button--success {
+  background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+  border-color: #27AE60;
+}
+
+.el-button--danger {
+  background: linear-gradient(135deg, #FF6B6B 0%, #EE5253 100%);
+  border-color: #EE5253;
+}
+
+.el-button--warning {
+  background: linear-gradient(135deg, #FFA502 0%, #E67E22 100%);
+  border-color: #E67E22;
+}
+
+.swap-court {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA502 100%);
+  border-color: #FFA502;
+  color: #0a1a2e;
+  font-weight: 600;
+}
+
+.view-buttons .el-button {
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.page-input {
+  display: flex;
+  align-items: center;
+  margin: 0 10px;
+}
+
+/* 修复表格行悬停变白问题 */
+.tennis-container ::v-deep .el-table {
+  background: transparent;
+  color: #ffffff;
+  font-size: 16px;
+}
+
+.tennis-container ::v-deep .el-table th {
+  background: linear-gradient(180deg, rgba(26, 58, 90, 0.95) 0%, rgba(10, 26, 46, 0.95) 100%) !important;
+  color: #FFD700;
+  font-weight: 600;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.3) !important;
+}
+
+.tennis-container ::v-deep .el-table tr {
+  background: rgba(26, 58, 90, 0.6) !important;
+}
+
+.tennis-container ::v-deep .el-table--enable-row-hover .el-table__body tr:hover>td {
+  background-color: #377DB8 !important;
+}
+
+.tennis-container ::v-deep .el-table td {
+  border-bottom: 1px solid rgba(255, 215, 0, 0.2) !important;
+  padding: 12px 0;
+}
+
+.tennis-container ::v-deep .el-table__body tr.current-row>td {
+  background-color: #1E8FD5 !important;
+}
+
+.tennis-container ::v-deep .el-table--border th,
+.tennis-container ::v-deep .el-table--border td {
+  border-right: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.tennis-container ::v-deep .el-table__empty-text {
+  color: #B5EAD7;
+}
+
+.tennis-container ::v-deep .el-input__inner {
+  background: rgba(26, 58, 90, 0.9) !important;
+  border: 1px solid rgba(255, 215, 0, 0.4) !important;
+  color: #ffffff !important;
+  height: 36px;
+  line-height: 36px;
+}
+
+/* 滚动条样式 */
+.tennis-container ::v-deep ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.tennis-container ::v-deep ::-webkit-scrollbar-track {
+  background: rgba(10, 26, 46, 0.5);
+}
+
+.tennis-container ::v-deep ::-webkit-scrollbar-thumb {
+  background: rgba(255, 215, 0, 0.6);
+  border-radius: 4px;
+}
+</style>
