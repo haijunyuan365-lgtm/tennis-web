@@ -391,18 +391,19 @@ export default {
           }
         }
       }
-
-      if (this.playMode === "match") {//比赛模式才能选择赛制
+      //新增单双打存储
+          localStorage.setItem('gameMode',this.gameMode)
+      if (localStorage.getItem('mode') ==='比赛') {//比赛模式才能选择赛制
         // 当未选择赛制且表单有效时，显示赛制对话框
         if (!this.matchRules && this.canConfirm) {
           this.ruleDialogVisible = true;
         } else {
           //已选择赛制直接跳转
-          this.$router.push("/matching");
+          this.$router.push("/gameMode");
         }
       }else{
         if(this.canConfirm){
-          this.$router.push("/matching");
+          this.$router.push('/SmoothPlayMode')
         }
       }
     },

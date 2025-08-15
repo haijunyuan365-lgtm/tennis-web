@@ -25,13 +25,25 @@ const routes = [
     component: () => import("../views/mode.vue")
   },
   {
-    path: '/matching',
-    component: () => import("../views/matching.vue"),
+    path: '/gameMode',
+    component: () => import("../views/gameMode.vue"),
     children: [
       {
-        path: '/matching/3D',
+        path: '/gameMode/3D',
         name: 'TiaoZhuan',
         component: () => import("../views/tiaozhan.vue"),
+        meta: { KeepAlive:true }
+      }
+    ]
+  },
+  {
+    path: '/SmoothPlayMode',
+    component: () => import("../views/SmoothPlayMode.vue"),
+    children: [
+      {
+        path: '/SmoothPlayMode/3D',
+        name: 'changda',
+        component: () => import("../views/SmoothPlayMode.vue"),
         meta: { KeepAlive:true }
       }
     ]

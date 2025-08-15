@@ -87,6 +87,7 @@ export default {
         alert('训练模式为预留模块，暂未开放');
         return;
       }
+      localStorage.setItem('mode',mode)
       this.$router.push('/login')
       // alert(`你选择了${mode}模式，开始体验`)
     }
