@@ -364,7 +364,8 @@ export default {
             );
 
           }
-
+          //新增单双打存储
+          localStorage.setItem('gameMode',this.gameMode)
           // 跳转，新增判断页面跳转
         if(localStorage.getItem('mode') ==='比赛'){
           this.$router.push('/gameMode')

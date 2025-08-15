@@ -6,7 +6,7 @@
         <h1>智能网球</h1>
       </el-col>
       <el-col :span="8" class="center-section">
-        <div class="match-mode-tag"><span class="match-text">比赛模式（单打）</span></div>
+        <div class="match-mode-tag"><span class="match-text">比赛模式({{gameMode}})</span></div>
       </el-col>
       <el-col :span="8" class="right-section"><span class="current-time">时间：{{ formattedTime }}</span></el-col>
     </el-row>
@@ -176,6 +176,7 @@ export default {
       offsetX: 0,  // 稍后在 mounted 中计算赋值
       offsetY: 50,
       isDisable: false,
+      gameMode:''
     }
   },
   computed: {
@@ -214,6 +215,8 @@ export default {
 
     this.drawCourt(ctx);
     this.drawPoints(ctx, this.tableData);
+    //单双打
+    this.gameMode = localStorage.getItem('gameMode') === 'single'?'单打':'双打'
   },
   watch: {
     tableData: {
