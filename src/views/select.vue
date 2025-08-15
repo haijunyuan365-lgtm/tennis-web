@@ -237,7 +237,7 @@ export default {
     },
     // 模式显示文本
     playModeText() {
-      if (this.playMode === "causal") {
+      if (localStorage.getItem('mode') === '畅打') {
         return "畅打模式";
       } else {
         return "比赛模式";

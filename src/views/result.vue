@@ -83,7 +83,7 @@ export default {
       // 数据清理
 
       // 跳转页面
-      this.$router.push('/matching')
+      this.$router.push('/select')
     },
     toTennis3D() {
       this.$router.push('/tennis3D')

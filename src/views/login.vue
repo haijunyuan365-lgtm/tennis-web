@@ -128,7 +128,7 @@ export default {
       playerId: -1,
       isSetMatch: false,
       // userNumber:-1
-      gameMode:'畅打'
+      gameMode:localStorage.getItem('mode')
     }
   },
   components: {

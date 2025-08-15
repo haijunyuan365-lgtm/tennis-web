@@ -6,7 +6,7 @@
         <h1>智能网球</h1>
       </el-col>
       <el-col :span="8" class="center-section">
-        <div class="match-mode-tag"><span class="match-text">比赛模式({{gameMode}})</span></div>
+        <div class="match-mode-tag"><span class="match-text">比赛模式({{ gameMode }})</span></div>
       </el-col>
       <el-col :span="8" class="right-section"><span class="current-time">时间：{{ formattedTime }}</span></el-col>
     </el-row>
@@ -22,7 +22,6 @@
             <el-button size="mini" @click="switchView('angle1')">视角1</el-button>
             <el-button size="mini" @click="switchView('angle2')">视角2</el-button>
           </div>
-          <el-button class="swap-court" size="mini" type="warning" @click="swapCourt">交换场地</el-button>
         </div>
         <!--视图-->
         <div class="video-preview">
@@ -54,8 +53,8 @@
           <div class="table-info-bar"><span>第{{ currentRow + 1 }}/{{ tableData.length }}条（第{{
             currentRound }}/{{ maxRound }}回合）</span></div>
           <!-- 表格主体 -->
-          <el-table ref="tennisTable" :data="pagedTableData" border height="calc(100% - 90px)"
-            highlight-current-row @current-change="handleCurrentChange">
+          <el-table ref="tennisTable" :data="pagedTableData" border height="calc(100% - 90px)" highlight-current-row
+            @current-change="handleCurrentChange">
             <el-table-column prop="time" label="时间" min-width="120" align="center"></el-table-column>
             <el-table-column prop="player" label="姓名" min-width="100" align="center"></el-table-column>
             <el-table-column prop="direction" label="方向" min-width="100" align="center">
@@ -84,7 +83,7 @@
     <!-- 底部控制栏 -->
     <el-row class="bottom-controls" type="flex" justify="space-between" align="middle">
       <el-col :span="12" class="left-controls">
-        <el-button size="small" @click="showStats">数据统计</el-button>
+        <!-- <el-button size="small" @click="showStats">数据统计</el-button> -->
         <el-button size="small" @click="challenge">挑战</el-button>
         <span class="action-info" v-if="currentSelectedRow">
           [{{ currentSelectedRow.player }}] {{ currentSelectedRow.direction === 'A' ? 'A→B' : 'B→A' }}
@@ -93,6 +92,8 @@
         <span class="action-info" v-else>未选择数据</span>
       </el-col>
       <el-col :span="12" class="right-controls">
+        <!--addtest仅为测试用-->
+        <el-button size="small" type="info" @click="addtest">添加</el-button>
         <el-button size="small" type="info" @click="modeChange">模式切换</el-button>
         <el-button size="small" type="success" @click="restartMatch">重新开始</el-button>
         <el-button size="small" type="danger" @click="endMatch">结束比赛</el-button>
@@ -138,29 +139,29 @@ export default {
       elapsedTime: 0,
       timer: null,
       tableData: [
-        // 第一回合 5条数据，第四条得分，最后一条出界
-        { id: 101, time: '00:01:01', player: 'Player1', direction: 'A', type: '发球', result: '界内', speed: '183', rotation: '3100', round: 1, x: 58, y: 75, inCourt: true },
-        { id: 102, time: '00:01:05', player: 'Player2', direction: 'B', type: '回球', result: '界内', speed: '135', rotation: '2700', round: 1, x: 50, y: 35, inCourt: true },
-        { id: 103, time: '00:01:10', player: 'Player1', direction: 'A', type: '回球', result: '界内', speed: '140', rotation: '2800', round: 1, x: 42, y: 68, inCourt: true },
-        { id: 104, time: '00:01:15', player: 'Player2', direction: 'B', type: '回球', result: '得分', speed: '160', rotation: '3000', round: 1, x: 40, y: 40, inCourt: true },
-        { id: 105, time: '00:01:20', player: 'Player1', direction: 'A', type: '发球', result: '出界', speed: '190', rotation: '3300', round: 1, x: 90, y: 103, inCourt: false },
+        // 第二回合 15条数据，第11条得分，最后一条出界（反转后变成第一条）
+        { id: 215, time: '16:47:49', player: 'Player2', direction: 'B', type: '回球', result: '出界', speed: '100', rotation: '2500', round: 2, x: 50, y: 103, inCourt: false },
+        { id: 214, time: '16:47:47', player: 'Player1', direction: 'A', type: '回球', result: '界内', speed: '120', rotation: '2700', round: 2, x: 61, y: 66, inCourt: true },
+        { id: 213, time: '16:47:44', player: 'Player2', direction: 'B', type: '回球', result: '界内', speed: '130', rotation: '2750', round: 2, x: 45, y: 35, inCourt: true },
+        { id: 212, time: '16:47:42', player: 'Player1', direction: 'A', type: '发球', result: '界内', speed: '170', rotation: '3000', round: 2, x: 79, y: 69, inCourt: true },
+        { id: 211, time: '16:47:40', player: 'Player2', direction: 'B', type: '回球', result: '得分', speed: '155', rotation: '3050', round: 2, x: 43, y: 37, inCourt: true },
+        { id: 210, time: '16:47:38', player: 'Player1', direction: 'A', type: '回球', result: '界内', speed: '140', rotation: '2900', round: 2, x: 60, y: 71, inCourt: true },
+        { id: 209, time: '16:47:37', player: 'Player2', direction: 'B', type: '回球', result: '界内', speed: '150', rotation: '3100', round: 2, x: 39, y: 38, inCourt: true },
+        { id: 208, time: '16:47:35', player: 'Player1', direction: 'A', type: '发球', result: '界内', speed: '185', rotation: '3200', round: 2, x: 55, y: 67, inCourt: true },
+        { id: 207, time: '16:47:33', player: 'Player2', direction: 'B', type: '回球', result: '界内', speed: '120', rotation: '2600', round: 2, x: 70, y: 35, inCourt: true },
+        { id: 206, time: '16:47:31', player: 'Player1', direction: 'A', type: '回球', result: '界内', speed: '135', rotation: '2850', round: 2, x: 62, y: 70, inCourt: true },
+        { id: 205, time: '16:47:29', player: 'Player2', direction: 'B', type: '发球', result: '界内', speed: '175', rotation: '3000', round: 2, x: 46, y: 40, inCourt: true },
+        { id: 204, time: '16:47:27', player: 'Player1', direction: 'A', type: '回球', result: '界内', speed: '110', rotation: '2500', round: 2, x: 38, y: 65, inCourt: true },
+        { id: 203, time: '16:47:25', player: 'Player2', direction: 'B', type: '回球', result: '界内', speed: '125', rotation: '2700', round: 2, x: 63, y: 32, inCourt: true },
+        { id: 202, time: '16:47:23', player: 'Player1', direction: 'A', type: '回球', result: '界内', speed: '140', rotation: '2900', round: 2, x: 42, y: 72, inCourt: true },
+        { id: 201, time: '16:47:20', player: 'Player2', direction: 'B', type: '发球', result: '界内', speed: '180', rotation: '3100', round: 2, x: 65, y: 38, inCourt: true },
 
-        // 第二回合 15条数据，第11条得分，最后一条出界
-        { id: 201, time: '00:02:01', player: 'Player2', direction: 'B', type: '发球', result: '界内', speed: '180', rotation: '3100', round: 2, x: 65, y: 38, inCourt: true },
-        { id: 202, time: '00:02:05', player: 'Player1', direction: 'A', type: '回球', result: '界内', speed: '140', rotation: '2900', round: 2, x: 42, y: 72, inCourt: true },
-        { id: 203, time: '00:02:10', player: 'Player2', direction: 'B', type: '回球', result: '界内', speed: '125', rotation: '2700', round: 2, x: 63, y: 32, inCourt: true },
-        { id: 204, time: '00:02:15', player: 'Player1', direction: 'A', type: '回球', result: '界内', speed: '110', rotation: '2500', round: 2, x: 38, y: 65, inCourt: true },
-        { id: 205, time: '00:02:20', player: 'Player2', direction: 'B', type: '发球', result: '界内', speed: '175', rotation: '3000', round: 2, x: 46, y: 40, inCourt: true },
-        { id: 206, time: '00:02:25', player: 'Player1', direction: 'A', type: '回球', result: '界内', speed: '135', rotation: '2850', round: 2, x: 62, y: 70, inCourt: true },
-        { id: 207, time: '00:02:30', player: 'Player2', direction: 'B', type: '回球', result: '界内', speed: '120', rotation: '2600', round: 2, x: 70, y: 35, inCourt: true },
-        { id: 208, time: '00:02:35', player: 'Player1', direction: 'A', type: '发球', result: '界内', speed: '185', rotation: '3200', round: 2, x: 55, y: 67, inCourt: true },
-        { id: 209, time: '00:02:40', player: 'Player2', direction: 'B', type: '回球', result: '界内', speed: '150', rotation: '3100', round: 2, x: 39, y: 38, inCourt: true },
-        { id: 210, time: '00:02:45', player: 'Player1', direction: 'A', type: '回球', result: '界内', speed: '140', rotation: '2900', round: 2, x: 60, y: 71, inCourt: true },
-        { id: 211, time: '00:02:50', player: 'Player2', direction: 'B', type: '回球', result: '得分', speed: '155', rotation: '3050', round: 2, x: 43, y: 37, inCourt: true },
-        { id: 212, time: '00:02:55', player: 'Player1', direction: 'A', type: '发球', result: '界内', speed: '170', rotation: '3000', round: 2, x: 79, y: 69, inCourt: true },
-        { id: 213, time: '00:03:00', player: 'Player2', direction: 'B', type: '回球', result: '界内', speed: '130', rotation: '2750', round: 2, x: 45, y: 35, inCourt: true },
-        { id: 214, time: '00:03:05', player: 'Player1', direction: 'A', type: '回球', result: '界内', speed: '120', rotation: '2700', round: 2, x: 61, y: 66, inCourt: true },
-        { id: 215, time: '00:03:10', player: 'Player2', direction: 'B', type: '回球', result: '出界', speed: '100', rotation: '2500', round: 2, x: 50, y: 103, inCourt: false }
+        // 第一回合 5条数据，第四条得分，最后一条出界（反转后变成第一条）
+        { id: 105, time: '16:46:39', player: 'Player1', direction: 'A', type: '发球', result: '出界', speed: '190', rotation: '3300', round: 1, x: 90, y: 103, inCourt: false },
+        { id: 104, time: '16:46:36', player: 'Player2', direction: 'B', type: '回球', result: '得分', speed: '160', rotation: '3000', round: 1, x: 40, y: 40, inCourt: true },
+        { id: 103, time: '16:46:30', player: 'Player1', direction: 'A', type: '回球', result: '界内', speed: '140', rotation: '2800', round: 1, x: 42, y: 68, inCourt: true },
+        { id: 102, time: '16:46:27', player: 'Player2', direction: 'B', type: '回球', result: '界内', speed: '135', rotation: '2700', round: 1, x: 50, y: 35, inCourt: true },
+        { id: 101, time: '16:46:20', player: 'Player1', direction: 'A', type: '发球', result: '界内', speed: '183', rotation: '3100', round: 1, x: 58, y: 75, inCourt: true }
       ],
 
       currentRound: 1,//当前回合
@@ -176,19 +177,22 @@ export default {
       offsetX: 0,  // 稍后在 mounted 中计算赋值
       offsetY: 50,
       isDisable: false,
-      gameMode:''
+      gameMode: ''
     }
   },
   computed: {
+    //比赛计时
     formattedTime() {
       const hours = Math.floor(this.elapsedTime / 3600).toString().padStart(2, '0');
       const minutes = Math.floor((this.elapsedTime % 3600) / 60).toString().padStart(2, '0');
       const seconds = (this.elapsedTime % 60).toString().padStart(2, '0');
       return `${hours}:${minutes}:${seconds}`;
     },
+    //分页数据获取
     pagedTableData() {
       return this.tableData.filter(item => item.round === this.currentRound);
     },
+    //计算最大轮次
     maxRound() {
       if (this.tableData.length === 0) {
         return 0; // 当没有数据时返回0
@@ -197,10 +201,12 @@ export default {
     }
   },
   mounted() {
+    //挂载
     this.$message = Message
     this.$confirm = MessageBox.confirm
-
+    //计时
     this.startTimer();
+    //测试用，打开时默认选中最新一条数据（待修改）
     this.$nextTick(() => {
       this.jumpToCurrentRound();
     });
@@ -216,9 +222,10 @@ export default {
     this.drawCourt(ctx);
     this.drawPoints(ctx, this.tableData);
     //单双打
-    this.gameMode = localStorage.getItem('gameMode') === 'single'?'单打':'双打'
+    this.gameMode = localStorage.getItem('gameMode') === 'single' ? '单打' : '双打'
   },
   watch: {
+    //监听用于图形绘画
     tableData: {
       handler() {
         const canvas = this.$refs.courtCanvas;
@@ -239,21 +246,30 @@ export default {
     this.stopTimer();
   },
   methods: {
+    //显示到最新一条数据，用于点击当前回合时使用，及数据更新时高亮（调用方式暂不确定，当选择查看以前数据时是否跳转？，待修改）
     jumpToCurrentRound() {
-      if (this.tableData.length === 0) { return; }
-      const lastRound = Math.max(...this.tableData.map(item => item.round));
-      const lastRoundData = this.tableData.filter(item => item.round === lastRound);
-      const lastRecord = lastRoundData[lastRoundData.length - 1];
-      const index = this.tableData.indexOf(lastRecord);
-      this.$refs.tennisTable.setCurrentRow(lastRecord);
-      this.currentRow = index;
-      this.currentRound = lastRound;
-      this.inputPage = lastRound;
+      if (this.tableData.length === 0) return;
+
+      //直接取第一条数据
+      const latestRecord = this.tableData[0];
+
+      //高亮最新数据
+      this.$refs.tennisTable?.setCurrentRow(latestRecord);
+
+      //更新状态
+      this.currentRow = 0;
+      this.currentRound = latestRecord.round;
+      this.inputPage = latestRecord.round;
+
+      //滚动到顶部
       this.$nextTick(() => {
-        const tableBodyWrapper = this.$refs.tennisTable.bodyWrapper;
-        tableBodyWrapper.scrollTop = tableBodyWrapper.scrollHeight;
+        const tableBodyWrapper = this.$refs.tennisTable?.bodyWrapper;
+        if (tableBodyWrapper) {
+          tableBodyWrapper.scrollTop = 0;
+        }
       });
     },
+    //数据行选中
     handleCurrentChange(val) {
       if (val) {
         this.currentRow = this.tableData.indexOf(val);
@@ -262,7 +278,9 @@ export default {
         this.currentSelectedRow = val;
       }
     },
+    //回合跳转函数
     goToRound(round) {
+      //找到第一条符合的数据
       const firstRowIndex = this.tableData.findIndex(item => item.round === round);
       if (firstRowIndex !== -1) {
         const firstRowData = this.tableData[firstRowIndex];
@@ -274,6 +292,19 @@ export default {
         this.$message.warning(`第${round}回合无数据`);
       }
     },
+    //上一回合
+    goToPrevRound() {
+      if (this.currentRound > 1) {
+        this.goToRound(this.currentRound - 1);
+      }
+    },
+    //下一回合
+    goToNextRound() {
+      if (this.currentRound < this.maxRound) {
+        this.goToRound(this.currentRound + 1);
+      }
+    },
+    //跳转到输入回合
     goToPage() {
       const page = parseInt(this.inputPage);
       if (!isNaN(page)) {
@@ -331,13 +362,6 @@ export default {
         this.$router.push('/matching')
       }
     },
-    swapCourt() {
-      this.$message.info('交换场地');
-    },
-    showStats() {
-      // this.$message.info('显示数据统计');
-      this.$router.push('/result')
-    },
     challenge() {
       this.$message.info('发起鹰眼挑战');
     },
@@ -366,10 +390,10 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        // this.resetTimer();
-        // 跳转页面,根据模式选择跳转到哪一个页面,退出到选择模式界面
-        this.$router.push('/login')
-        this.$message.success('比赛已结束');
+        //清除localstorage
+        localStorage.removeItem('gameMode')
+        this.showStats()
+        //数据显示后跳转this.$router.push('/select')
       }).catch(() => {
         this.$message.info('已取消结束比赛');
       });
@@ -472,8 +496,8 @@ export default {
 
       if (!this.currentSelectedRow) return;
 
-        const currentRound = this.currentSelectedRow.round;
-        const currentRoundPoints = points.filter(p => p.round === currentRound);
+      const currentRound = this.currentSelectedRow.round;
+      const currentRoundPoints = points.filter(p => p.round === currentRound);
       // 绘制非选中点
       currentRoundPoints.forEach(point => {
         if (this.currentSelectedRow && point.id === this.currentSelectedRow.id) return;
@@ -518,320 +542,37 @@ export default {
     },
 
     modeChange() {
-      //this.gameMode = this.gameMode === '比赛模式' ? '畅打模式' : '比赛模式';
-      //初始化网球场
-      // const canvas = this.$refs.courtCanvas;
-      // const ctx = canvas.getContext("2d");
-
-      // this.drawCourt(ctx);
-      // this.drawPoints(ctx, this.tableData);
-    },
-    goToPrevRound() {
-      if (this.currentRound > 1) {
-        this.goToRound(this.currentRound - 1);
-      }
-    },
-    goToNextRound() {
-      if (this.currentRound < this.maxRound) {
-        this.goToRound(this.currentRound + 1);
-      }
+      localStorage.setItem('mode', localStorage.getItem('mode') === '比赛' ? '畅打' : '比赛')
+      this.$router.push('/select')
     },
     clear() {
       this.tableData = []
       this.currentRow = -1
       this.currentRound = 0
-    }
+    },
+    //数据统计，点击“结束比赛”时手动触发或按规则比赛结束时候自动触发（待修改，自动逻辑未实现）
+    showStats() {
+      this.$router.push('/result')
+    },
+    //数据新增测试，仅测试，待修改（删除）
+    //前端根据回合来丢弃和渲染数据，后端保留完整的倒序数据，根据前端需求来传输
+    addtest() {
+      const testdata = {
+        id: Date.now(), time: Date.now(),
+        player: 'Player1', direction: 'A',
+        type: '发球', result: '出界',
+        speed: '190', rotation: '3300',
+        round: 3, x: 90, y: 103,
+        inCourt: false
+      };
+      this.tableData.unshift(testdata)
 
+      this.$nextTick(() => {
+        this.jumpToCurrentRound();
+      });
+    }
   }
 }
 </script>
 
-<style scoped>
-.tennis-container {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  font-family: 'Arial', 'Helvetica Neue', sans-serif;
-  background: linear-gradient(135deg, #0a1a2e 0%, #1a3a5a 100%);
-  color: #ffffff;
-}
-
-.top-bar {
-  padding: 12px 24px;
-  background: rgba(10, 26, 46, 0.95);
-  border-bottom: 1px solid rgba(255, 215, 0, 0.4);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-.match-mode-tag {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
-
-.match-text {
-  padding: 6px 0;
-  font-size: 24px;
-  font-weight: 700;
-  color: #FFD700;
-  text-shadow: 0 0 12px rgba(255, 215, 0, 0.7);
-  position: relative;
-  letter-spacing: 1px;
-}
-
-.match-text::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 215, 0, 0.8) 30%, rgba(255, 215, 0, 0.8) 70%, transparent 100%);
-}
-
-.top-bar h1 {
-  margin: 0;
-  font-size: 30px;
-  font-weight: 700;
-  color: #FFD700;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-}
-
-.current-time {
-  float: right;
-  font-size: 20px;
-  font-family: 'Courier New', monospace;
-  color: #00E5FF;
-}
-
-.middle-section {
-  flex: 1;
-  overflow: hidden;
-  padding: 15px;
-  box-sizing: border-box;
-  background: rgba(10, 26, 46, 0.7);
-}
-
-.data-table-container {
-  height: 100%;
-  padding: 0 10px;
-  display: flex;
-  flex-direction: column;
-}
-
-.table-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: rgba(26, 58, 90, 0.8);
-  border-radius: 8px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-  border: 1px solid rgba(255, 215, 0, 0.2);
-}
-
-.table-info-bar {
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(90deg, rgba(10, 26, 46, 0.9) 0%, rgba(26, 58, 90, 0.9) 100%);
-  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
-  font-size: 16px;
-  color: #B5EAD7;
-  padding: 0 15px;
-  font-weight: 500;
-}
-
-.table-pagination {
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(90deg, rgba(10, 26, 46, 0.8) 0%, rgba(26, 58, 90, 0.8) 100%);
-  border-top: 1px solid rgba(255, 215, 0, 0.2);
-  padding: 0 15px;
-}
-
-.camera-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding-left: 10px;
-}
-
-.camera-controls {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px 15px;
-  background: rgba(26, 58, 90, 0.9);
-  border-radius: 8px 8px 0 0;
-  border: 1px solid rgba(255, 215, 0, 0.2);
-  border-bottom: none;
-}
-
-.video-preview {
-  flex: 1;
-  background: linear-gradient(135deg, #0a1a2e 0%, #1a3a5a 100%);
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 0 0 8px 8px;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 215, 0, 0.2);
-  border-top: none;
-  position: relative;
-}
-
-.placeholder {
-  text-align: center;
-  z-index: 1;
-}
-
-.placeholder p:first-child {
-  font-size: 28px;
-  font-weight: 600;
-  margin-bottom: 10px;
-  color: #FFD700;
-}
-
-.placeholder p:last-child {
-  font-size: 18px;
-  color: #B5EAD7;
-}
-
-.bottom-controls {
-  padding: 12px 24px;
-  background: rgba(10, 26, 46, 0.95);
-  border-top: 1px solid rgba(255, 215, 0, 0.4);
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
-}
-
-.action-info {
-  margin-left: 20px;
-  font-weight: 500;
-  color: #B5EAD7;
-  font-size: 16px;
-}
-
-.right-controls {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.el-button {
-  background: rgba(26, 58, 90, 0.9);
-  border: 1px solid rgba(255, 215, 0, 0.4);
-  color: #ffffff;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  font-size: 14px;
-  padding: 10px 15px;
-}
-
-.el-button:hover {
-  background: rgba(255, 215, 0, 0.3);
-}
-
-.el-button--success {
-  background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
-  border-color: #27AE60;
-}
-
-.el-button--danger {
-  background: linear-gradient(135deg, #FF6B6B 0%, #EE5253 100%);
-  border-color: #EE5253;
-}
-
-.el-button--warning {
-  background: linear-gradient(135deg, #FFA502 0%, #E67E22 100%);
-  border-color: #E67E22;
-}
-
-.swap-court {
-  background: linear-gradient(135deg, #FFD700 0%, #FFA502 100%);
-  border-color: #FFA502;
-  color: #0a1a2e;
-  font-weight: 600;
-}
-
-.view-buttons .el-button {
-  margin-right: 8px;
-  font-size: 14px;
-}
-
-.page-input {
-  display: flex;
-  align-items: center;
-  margin: 0 10px;
-}
-
-/* 修复表格行悬停变白问题 */
-.tennis-container ::v-deep .el-table {
-  background: transparent;
-  color: #ffffff;
-  font-size: 16px;
-}
-
-.tennis-container ::v-deep .el-table th {
-  background: linear-gradient(180deg, rgba(26, 58, 90, 0.95) 0%, rgba(10, 26, 46, 0.95) 100%) !important;
-  color: #FFD700;
-  font-weight: 600;
-  font-size: 16px;
-  border-bottom: 1px solid rgba(255, 215, 0, 0.3) !important;
-}
-
-.tennis-container ::v-deep .el-table tr {
-  background: rgba(26, 58, 90, 0.6) !important;
-}
-
-.tennis-container ::v-deep .el-table--enable-row-hover .el-table__body tr:hover>td {
-  background-color: #377DB8 !important;
-}
-
-.tennis-container ::v-deep .el-table td {
-  border-bottom: 1px solid rgba(255, 215, 0, 0.2) !important;
-  padding: 12px 0;
-}
-
-.tennis-container ::v-deep .el-table__body tr.current-row>td {
-  background-color: #1E8FD5 !important;
-}
-
-.tennis-container ::v-deep .el-table--border th,
-.tennis-container ::v-deep .el-table--border td {
-  border-right: 1px solid rgba(255, 215, 0, 0.2);
-}
-
-.tennis-container ::v-deep .el-table__empty-text {
-  color: #B5EAD7;
-}
-
-.tennis-container ::v-deep .el-input__inner {
-  background: rgba(26, 58, 90, 0.9) !important;
-  border: 1px solid rgba(255, 215, 0, 0.4) !important;
-  color: #ffffff !important;
-  height: 36px;
-  line-height: 36px;
-}
-
-/* 滚动条样式 */
-.tennis-container ::v-deep ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.tennis-container ::v-deep ::-webkit-scrollbar-track {
-  background: rgba(10, 26, 46, 0.5);
-}
-
-.tennis-container ::v-deep ::-webkit-scrollbar-thumb {
-  background: rgba(255, 215, 0, 0.6);
-  border-radius: 4px;
-}
-</style>
+<style scoped src="../assets/css/playMode.css"></style>
