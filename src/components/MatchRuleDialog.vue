@@ -108,7 +108,7 @@ export default {
       activeTab: "regular", // 当前激活的标签页'regular'或'custom'
       // 表单数据对象
       form: {
-        gameNumber: "3盘", //盘数
+        gameNumber: "1盘", //盘数
         games: "6局", //局数
         tiebreak: "抢7", //决胜局
         winGame: "No-Ad", //获胜规则
@@ -253,7 +253,7 @@ export default {
     // 重置表单数据
     resetForm() {
       this.form = {
-        gameNumber: "3盘",
+        gameNumber: "1盘",
         games: "6局",
         tiebreak: "抢7",
         winGame: "No-Ad",

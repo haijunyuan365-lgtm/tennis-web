@@ -46,8 +46,8 @@
                 <el-radio-button label="double">双打模式</el-radio-button>
               </el-radio-group>
             </div>
-            <!-- 赛制设置按钮 -->
-            <div class="rule-dialog">
+            <!-- 赛制设置按钮 v-show="playMode==='match'"-->
+            <div class="rule-dialog" v-show="playMode==='match'">
               <el-button
                 icon="el-icon-setting"
                 @click="ruleDialogVisible = true"
@@ -150,7 +150,7 @@ export default {
       gameMode: "single", //单双打模式
       ruleDialogVisible: false, // 赛制设置弹窗显示状态
       matchRules: null, // 存储赛制设置(对象类型)
-      playMode: "match", //模式类型
+      playMode: "match", //模式类型 match:比赛 causal:畅打
       players: [
         {
           name: "学生18168686868",
@@ -239,7 +239,7 @@ export default {
     playModeText() {
       if (this.playMode === "causal") {
         return "畅打模式";
-      }else{
+      } else {
         return "比赛模式";
       }
     },
@@ -391,18 +391,21 @@ export default {
           }
         }
       }
-      // 当未选择赛制且表单有效时，显示赛制对话框
-      if (!this.matchRules && this.canConfirm) {
-        this.ruleDialogVisible = true;
-      } else {
-        //已选择赛制直接跳转
-        this.$router.push("/matching");
+
+      if (this.playMode === "match") {//比赛模式才能选择赛制
+        // 当未选择赛制且表单有效时，显示赛制对话框
+        if (!this.matchRules && this.canConfirm) {
+          this.ruleDialogVisible = true;
+        } else {
+          //已选择赛制直接跳转
+          this.$router.push("/matching");
+        }
+      }else{
+        if(this.canConfirm){
+          this.$router.push("/matching");
+        }
       }
     },
-
-    // showHistory() {
-    //   this.$message.info("显示历史记录");
-    // },
     goBack() {
       this.$router.push("/login");
     },
@@ -615,7 +618,6 @@ body,
 .rule-dialog {
   margin-right: 10px;
 }
-
 /* 球员列表和确认按钮 */
 .select-container {
   display: flex;
@@ -625,7 +627,7 @@ body,
 }
 /* 球员列表样式 - 使用背景色替代边框 */
 .players-table {
-  height: 500px; /* 减去按钮区域高度 */
+  height: 400px; /* 减去按钮区域高度 */
   /* overflow-y: auto; */
   border-radius: 12px;
   background: #f8fafc;
