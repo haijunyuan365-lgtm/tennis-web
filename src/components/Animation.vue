@@ -1,5 +1,5 @@
 <template>
-  <div></div>
+
 </template>
 
 <script>
@@ -9,7 +9,7 @@ export default {
     return {
       isAnimating: true,
       currentPosition: 0,
-      movementSpeed: 0.001,
+      movementSpeed: 0.004,
       lastBallPosition: null,
       showBackTrail: true,
       lastBallY: 0,
@@ -22,8 +22,13 @@ export default {
     }
   },
 
-  props: ['controls', 'renderer', 'trajectoryPoints', 'tennisBall', 'scene', 'camera', 'clippingPlane',
-    'tennisBallShadow', 'createDirectionalEllipse', 'receivePassedCoordinatesCount'],
+  props: ['trajectoryPoints', 'createDirectionalEllipse'],
+
+  computed: {
+    renderer() {
+      return this.$store.getters['hawkeye/getRenderer'];
+    }
+  },
 
   watch: {
     renderer(renderer) {
@@ -45,18 +50,18 @@ export default {
         requestAnimationFrame(this.animate.bind(this));
 
         // 确保所有必要对象都存在
-        if (!this.controls || !this.renderer || !this.scene || !this.camera) {
+        if (!this.$store.state.hawkeye.controls || !this.$store.state.hawkeye.renderer || !this.$store.state.hawkeye.scene || !this.$store.state.hawkeye.camera) {
           console.warn("Animation skipped: missing required objects");
           return;
         }
 
-        this.controls.update();
+        this.$store.commit("hawkeye/updateControls");
 
         if (this.isAnimating && this.trajectoryPoints.length > 1) {
           // 保存上一帧位置（在更新前）
           const previousPosition = this.lastBallPosition
             ? this.lastBallPosition.clone()
-            : this.tennisBall.position.clone();
+            : this.$store.state.hawkeye.tennisBall.position.clone();
 
 
           this.currentPosition += this.movementSpeed;
@@ -66,11 +71,12 @@ export default {
             // 到达终点
             this.currentPosition = 1;
             const lastPoint = this.trajectoryPoints[this.trajectoryPoints.length - 1];
-            this.tennisBall.position.copy(lastPoint);
             this.isAnimating = false;
 
-            // 重置旋转
-            this.tennisBall.rotation.set(0, 0, 0);
+            this.$store.commit("hawkeye/stopTennisBall", lastPoint)
+            // this.tennisBall.position.copy(lastPoint);
+            // // 重置旋转
+            // this.tennisBall.rotation.set(0, 0, 0);
 
             // 触发完成事件
             this.$emit('animation-complete');
@@ -89,8 +95,15 @@ export default {
             const p1 = this.trajectoryPoints[pointIndex];
             const p2 = this.trajectoryPoints[pointIndex + 1];
 
+
+            // 改为传递单一payload对象
+            this.$store.commit("hawkeye/updateTennisBall", {
+              p1,           // THREE.Vector3 对象
+              p2,           // THREE.Vector3 对象
+              progress // 插值系数
+            });
             // 更新网球位置
-            this.tennisBall.position.lerpVectors(p1, p2, progress);
+            // this.tennisBall.position.lerpVectors(p1, p2, progress);
 
             // 计算运动方向（用于旋转）
             const moveDirection = new THREE.Vector3().subVectors(p2, p1).normalize();
@@ -102,29 +115,19 @@ export default {
             // 计算旋转轴（垂直于运动方向和上向量）
             rotationAxis.crossVectors(new THREE.Vector3(0, 1, 0), moveDirection).normalize();
 
-            // 应用旋转
-            this.tennisBall.rotateOnWorldAxis(rotationAxis, rotationSpeed);
-
-            // 添加额外旋转效果
-            this.tennisBall.rotation.y += 0.01;
-            this.tennisBall.rotation.x += 0.005;
-
-            // 特殊区域添加Z轴旋转
-            if (pointIndex >= 10 && pointIndex <= 15) {
-              this.tennisBall.rotation.z += 0.02;
-            }
-
-            // 限制旋转角度（防止过度旋转）
-            this.tennisBall.rotation.x = this.tennisBall.rotation.x % (Math.PI * 2);
-            this.tennisBall.rotation.y = this.tennisBall.rotation.y % (Math.PI * 2);
-            this.tennisBall.rotation.z = this.tennisBall.rotation.z % (Math.PI * 2);
+            //应用球体旋转
+            this.$store.commit("hawkeye/rotateTennisBall", {
+              rotationAxis,
+              rotationSpeed,
+              pointIndex
+            })
 
             // 更新阴影
             this.updateShadows();
 
             // 计算实际运动方向（从上一帧位置到当前位置）
             const actualDirection = new THREE.Vector3()
-              .subVectors(this.tennisBall.position, previousPosition)
+              .subVectors(this.$store.state.hawkeye.tennisBall.position, previousPosition)
               .normalize();
 
             const horizontalDirection = new THREE.Vector3(
@@ -137,7 +140,7 @@ export default {
             this.updateClippingPlane(horizontalDirection);
 
             // 更新上一帧位置
-            this.lastBallPosition = this.tennisBall.position.clone();
+            this.lastBallPosition = this.$store.state.hawkeye.tennisBall.position.clone();
 
             // 更新计数器
             if (pointIndex > this.passedCoordinatesCount) {
@@ -147,7 +150,7 @@ export default {
           }
         }
 
-        this.renderer.render(this.scene, this.camera);
+        this.$store.commit("hawkeye/rendererScene");
       } catch (error) {
         console.error("Animation error:", error);
         this.isAnimating = false;
@@ -159,7 +162,7 @@ export default {
     updateClippingPlane(direction) {
       if (this.isAnimating && this.showBackTrail) {
         // 使用当前点作为基准，不使用历史路径点
-        const currentPoint = this.tennisBall.position.clone();
+        const currentPoint = this.$store.state.hawkeye.tennisBall.position.clone();
 
         // 设置裁剪平面位置
         const planePosition = new THREE.Vector3(
@@ -169,14 +172,12 @@ export default {
         );
         // 反转法线方向
         const normal = direction.clone().negate().normalize();
-        // 设置裁剪平面
-        this.clippingPlane.setFromNormalAndCoplanarPoint(normal, planePosition);
 
-        // 确保裁剪平面应用到轨迹网格
-        if (this.fullTrajectoryMesh) {
-          this.fullTrajectoryMesh.material.clippingPlanes = [this.clippingPlane];
-          this.fullTrajectoryMesh.material.needsUpdate = true;
-        }
+        // 设置裁剪平面
+        this.$store.commit("hawkeye/setClippingPlane", {
+          normal,
+          planePosition
+        })
       }
     },
 
@@ -184,11 +185,11 @@ export default {
     updateShadows() {
 
       // 计算网球高度
-      const ballHeight = this.tennisBall.position.y - this.constants.BALL_RADIUS;
+      const ballHeight = this.$store.state.hawkeye.tennisBall.position.y - this.constants.BALL_RADIUS;
 
       // 计算垂直方向速度
-      const verticalSpeed = this.tennisBall.position.y - this.lastBallY;
-      this.lastBallY = this.tennisBall.position.y;
+      const verticalSpeed = this.$store.state.hawkeye.tennisBall.position.y - this.lastBallY;
+      this.lastBallY = this.$store.state.hawkeye.tennisBall.position.y;
 
       // 更新阴影大小和不透明度
       const shadowScale = Math.max(0.5, 1.0 - ballHeight * 0.25);
@@ -196,38 +197,38 @@ export default {
 
 
       // 更新阴影位置
-      this.tennisBallShadow.position.x = this.tennisBall.position.x;
-      this.tennisBallShadow.position.z = this.tennisBall.position.z;
-      this.tennisBallShadow.material.opacity = shadowOpacity;
-      this.tennisBallShadow.scale.set(shadowScale, shadowScale, shadowScale);
+      this.$store.commit("hawkeye/updateTennisBallShadow", {
+        shadowOpacity,
+        shadowScale,
+      })
+
       // 检测碰撞并创建永久阴影
-      if (ballHeight <= 0.001 && !this.tennisBall.userData.hasCollided) {
-        this.tennisBall.userData.hasCollided = true;
+      if (ballHeight <= 0.001 && !this.$store.state.hawkeye.tennisBall.userData.hasCollided) {
+
+        this.$store.commit("hawkeye/collidedTennisBall", true)
         // 使用上一帧位置计算方向
         const direction = new THREE.Vector3().subVectors(
-          this.tennisBall.position,
+          this.$store.state.hawkeye.tennisBall.position,
           this.lastBallPosition
         ).normalize();
 
         // 保存当前位置（移动前的原始位置）
-        const originalPosition = this.tennisBall.position.clone();
+        const originalPosition = this.$store.state.hawkeye.tennisBall.position.clone();
 
         // 打印调试信息
         console.log("球原始落地位置:", originalPosition);
-        console.log("移动后位置:", this.tennisBall.position);
+        console.log("移动后位置:", this.$store.state.hawkeye.tennisBall.position);
         console.log("运动方向:", direction);
-
-        this.receivePassedCoordinatesCount(this.passedCoordinatesCount + 1);
 
         // 创建带方向性的椭圆痕迹
         const directionalMark = this.createDirectionalEllipse(
           // 使用移动后的位置创建痕迹
-          this.tennisBall.position.x,
-          this.tennisBall.position.z,
+          this.$store.state.hawkeye.tennisBall.position.x,
+          this.$store.state.hawkeye.tennisBall.position.z,
           direction,
         );
 
-        this.scene.add(directionalMark);
+        this.$store.commit("hawkeye/sceneAdd", directionalMark);
         this.shadowMarks.push(directionalMark);
 
         // // 保留原始位置（如果需要）
@@ -235,7 +236,7 @@ export default {
         // console.log("恢复原始位置:", this.tennisBall.position);
       } else if (ballHeight > 0.2) {
         // 重置碰撞状态
-        this.tennisBall.userData.hasCollided = false;
+        this.$store.commit("hawkeye/collidedTennisBall", false)
       }
     },
 

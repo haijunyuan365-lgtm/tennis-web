@@ -14,19 +14,19 @@
     <!-- 区域统计信息 -->
     <div class="area-stats">
       <div class="FinishingZone" style="border-left: 30px solid #A786B5FF;">
-        <div class="stat-label">制胜区 (0-6.4m)</div>
-        <div class="stat-value">{{ winningZonePercentage }}%</div>
-        <div class="stat-count">{{ winningZoneCount }}/{{ totalShots }}</div>
+        <div class="stat-label" style="font-size: 25px;">制胜区 (0-6.4m)</div>
+        <div class="stat-value" style="font-size: 30px;">{{ winningZonePercentage }}%</div>
+        <div class="stat-count" style="font-size: 20px;">{{ winningZoneCount }}/{{ totalShots }}</div>
       </div>
       <div class="AttackZone" style="border-left: 30px solid #828767FF;">
-        <div class="stat-label">进攻区 (6.4-9.14m)</div>
-        <div class="stat-value">{{ attackZonePercentage }}%</div>
-        <div class="stat-count">{{ attackZoneCount }}/{{ totalShots }}</div>
+        <div class="stat-label" style="font-size: 25px;" >进攻区 (6.4-9.14m)</div>
+        <div class="stat-value" style="font-size: 30px;">{{ attackZonePercentage }}%</div>
+        <div class="stat-count" style="font-size: 20px;">{{ attackZoneCount }}/{{ totalShots }}</div>
       </div>
       <div class="NeutralZone" style="border-left: 30px solid #206419FF;">
-        <div class="stat-label">防守区 (9.14-11.88m)</div>
-        <div class="stat-value">{{ defenseZonePercentage }}%</div>
-        <div class="stat-count">{{ defenseZoneCount }}/{{ totalShots }}</div>
+        <div class="stat-label" style="font-size: 25px;">防守区 (9.14-11.88m)</div>
+        <div class="stat-value" style="font-size: 30px;">{{ defenseZonePercentage }}%</div>
+        <div class="stat-count" style="font-size: 20px;">{{ defenseZoneCount }}/{{ totalShots }}</div>
       </div>
     </div>
   </div>
@@ -119,6 +119,11 @@ export default {
     this.initScene();
     // 添加窗口大小变化监听器
     window.addEventListener('resize', this.onWindowResize);
+    
+    // 页面加载完成后默认显示击球落点
+    this.$nextTick(() => {
+      this.showShotPlacement();
+    });
   },
   methods: {
     initScene() {
@@ -205,6 +210,9 @@ export default {
       
       // 初始化落点数据
       this.initShotData();
+      
+      // 默认显示击球落点
+      this.showShotPlacement();
       
       // 开始动画循环
       this.animate();
@@ -418,33 +426,48 @@ export default {
       }
     },
     
+    // 获取球体颜色
+    getBallColor(shotType) {
+      switch(shotType) {
+        case 'forehand':
+          return '#FF6B6B'; // 红色 - 正手
+        case 'backhand':
+          return '#4ECDC4'; // 青色 - 反手
+        default:
+          return '#DFFF00'; // 默认黄色（用于击球位置）
+      }
+    },
+    
     // 初始化落点数据
     initShotData() {
       // 模拟击球落点数据 (x, z坐标)
       this.shotPoints = [
-        { x: 0, z: 6.4 },   // 前锋球
-        { x: 0, z: 9.14 },
-        { x: 0, z: 11.88 },
-        { x: 2, z: 6 },
-        { x: 2, z: 8.5 },
-        { x: 2, z: 11 },
-        { x: 4, z: 6 },
-        { x: 4, z: 8.5 },
-        { x: 4, z: 11 },
-        { x: 3, z: 6 },
-        { x: 2, z: 8.5 }   // 制胜球
+        { x: 0, z: 6.4, shotType: 'forehand' },   // 正手
+        { x: 0, z: 9.14, shotType: 'backhand' },  // 反手
+        { x: 0, z: 11.88, shotType: 'forehand' },
+        { x: 2, z: 6, shotType: 'backhand' },
+        { x: 2, z: 8.5, shotType: 'forehand' },
+        { x: 2, z: 11, shotType: 'backhand' },
+        { x: 4, z: 6, shotType: 'forehand' },
+        { x: 4, z: 8.5, shotType: 'backhand' },
+        { x: 4, z: 11, shotType: 'forehand' },
+        { x: 3, z: 6, shotType: 'backhand' },
+        { x: 2, z: 8.5, shotType: 'forehand' }   // 制胜球
       ];
       
       // 模拟发球落点数据
       this.servePoints = [
-        { x: 2, z: 6 },  // 一发
-        { x: 1.5, z: 8.5 },
+        { x: 2, z: 6, shotType: 'forehand' },     // 正手发球
+        { x: 1.5, z: 8.5, shotType: 'backhand' }, // 反手发球
       ];
       
-      // 模拟击球位置数据
+      // 模拟击球位置数据（不需要shotType）
       this.hitPoints = [
         { x: -3, z: 10 },   // 击球位置
-        { x: 3, z: 10 }
+        { x: 3, z: 10 },
+        { x: 0, z: 10 },
+        { x: -3, z: 8.5 },
+        { x: 3, z: 8.5 }
       ];
     },
     
@@ -489,8 +512,30 @@ export default {
     // 绘制落点
     drawPoints(points, type) {
       points.forEach((point, index) => {
-        // 使用网球几何体和材质
+        // 如果是击球位置，用小圆柱代替
+        if (type === 'hit') {
+          const cylinderGeometry = new THREE.CylinderGeometry(0.06175, 0.06175, 1.6, 16);
+          const cylinderMaterial = new THREE.MeshStandardMaterial({
+            color: '#DFFF00',
+            roughness: 0.6,
+            metalness: 0.05
+          });
+          const marker = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
+          marker.position.set(point.x, 0.03, point.z); // 底部接触球场表面
+          marker.castShadow = true;
+          marker.receiveShadow = true;
+          marker.userData.isShotPoint = true;
+          marker.userData.pointType = type;
+          marker.userData.pointIndex = index;
+          this.scene.add(marker);
+          return;
+        }
+
+        // 使用网球几何体和材质（用于击球落点、发球落点）
         const geometry = new THREE.SphereGeometry(0.03175, 32, 32); // 标准网球尺寸
+        
+        // 获取球体颜色
+        const ballColor = this.getBallColor(point.shotType);
         
         // 创建网球纹理
         const canvas = document.createElement('canvas');
@@ -498,8 +543,8 @@ export default {
         canvas.height = 128;
         const ctx = canvas.getContext('2d');
 
-        // 基础颜色（网球黄绿色）
-        ctx.fillStyle = '#DFFF00';
+        // 使用动态颜色
+        ctx.fillStyle = ballColor;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // 添加绒毛/纹理效果
@@ -628,11 +673,10 @@ export default {
 /* 区域统计信息样式 */
 .area-stats {
   position: absolute;
-  top: 150px;
+  top: 25vh;
   right: 20px;
-  padding: 20px;
   z-index: 10;
-  min-width: 200px;
+  min-width: 35vw;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -640,11 +684,49 @@ export default {
   margin-bottom: 15px; 
   border-radius: 8px;
 }
-.FinishingZone,.AttackZone,.NeutralZone {
-  margin-bottom: 60px;
+.FinishingZone {
+  position: absolute;
+  top: 2vh;
+  right: 14vw;
+  width: 19vw;
   padding: 10px;
   background: rgba(0, 0, 0, 0.1);
   border-radius: 8px;
+}
+.AttackZone {
+  position: absolute;
+  top: 20vh;
+  right: 10vw;
+  width: 19vw;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+.NeutralZone {
+  position: absolute;
+  top: 38vh;
+  right:6vw;
+  width: 19vw;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+.area-stats .stat-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #FFA800;
+  margin-bottom: 10px;
+}
+.area-stats .stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #00FF00;
+  margin-bottom: 10px;
+}
+.area-stats .stat-count {
+  font-size: 14px;
+  color: #CCCCCC;
+  opacity: 0.8;
 }
 
 

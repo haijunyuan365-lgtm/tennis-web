@@ -1,7 +1,7 @@
 <template>
   <div id="ui-container">
     <h1>网球轨迹可视化系统</h1>
-    
+
     <!-- 居中动画控制按钮 -->
     <div class="control-group centered">
       <div>
@@ -10,17 +10,13 @@
         </button>
       </div>
     </div>
-    
+
     <!-- 回合选择按钮 -->
     <div class="control-group">
       <h2>回合选择</h2>
       <div class="btn-group">
-        <button 
-          v-for="round in rounds" 
-          :key="round.id"
-          :class="{ active: activeRound === round.id }"
-          @click="selectRound(round.id)"
-        >
+        <button v-for="round in rounds" :key="round.id" :class="{ active: activeRound === round.id }"
+          @click="selectRound(round.id)">
           {{ round.label }}
         </button>
       </div>
@@ -46,16 +42,16 @@ export default {
     // 从localStorage加载保存的回合
     this.loadSavedRound();
   },
-  
+
   methods: {
     // 从localStorage加载保存的回合
     loadSavedRound() {
       const savedRound = localStorage.getItem("roundId");
-      
+
       // 如果localStorage中有保存的回合，使用它
       if (savedRound !== null && savedRound !== undefined) {
         const roundId = parseInt(savedRound);
-        
+
         // 确保回合ID有效
         if (this.rounds.some(round => round.id === roundId)) {
           this.activeRound = roundId;
@@ -63,20 +59,24 @@ export default {
           console.warn("无效的回合ID:", savedRound);
         }
       }
-      
+
     },
-    
+
     togglePause() {
       this.isPaused = !this.isPaused;
       this.$bus.$emit("animation", !this.isPaused);
     },
-    
+
     selectRound(roundId) {
       this.activeRound = roundId;
-      
+      if (roundId === 3) {
+        localStorage.setItem("realOut", true)
+      } else {
+        localStorage.setItem("realOut", false)
+      }
       // 保存到localStorage
       localStorage.setItem("roundId", roundId);
-      
+
       window.location.reload()
 
     }
@@ -200,11 +200,11 @@ button.active {
     left: 10px;
     max-width: none;
   }
-  
+
   .control-group.centered {
     max-width: 100%;
   }
-  
+
   .centered-button {
     padding: 10px 20px;
     font-size: 1rem;

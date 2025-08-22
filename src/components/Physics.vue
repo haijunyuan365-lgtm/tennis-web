@@ -1,6 +1,6 @@
 <template>
   <div id="hawkeye-challenge">
-    <div class="hawkeye-card">
+    <div class="hawkeye-card" v-show="cardShow">
       <div class="hawkeye-logo">鹰眼挑战</div>
       <div id="judgment-result">{{ out }}</div>
       <div class="hawkeye-footer">Tennis Tracker System</div>
@@ -15,10 +15,12 @@ export default {
   data() {
     return {
       trajectoryPoints: [],
+      interpolatedTrajectoryPoints: [], // 新增，用于存储插值后的点
       fullTrajectoryMesh: null,
       tennisBall: null,
       tennisBallShadow: null,
       out: "WAIT",
+      cardShow: false,
       constants: {
         BALL_RADIUS: 0.03175,
         GROUND_HEIGHT: 0.01,
@@ -34,15 +36,19 @@ export default {
     }
   },
 
-  props: ['scene', 'controls', 'camera', 'clippingPlane', 'passedCoordinatesCount', 'initialTrajectoryPoints', 'realOut',
-    'receiveTrajectoryPoints', 'receiveTennisBall', 'receiveTennisBallShadow'],
+  props: ['initialTrajectoryPoints', 'realOut', 'distance', 'receiveTrajectoryPoints'],
+
+  computed: {
+    scene() {
+      return this.$store.getters['hawkeye/getScene'];
+    }
+  },
 
   watch: {
     scene(newScene) {
       if (newScene) {
         this.createTennisBall();
         this.loadInitialTrajectory();
-
       }
     }
   },
@@ -57,7 +63,7 @@ export default {
       let minY = Number.MAX_VALUE;
       let minPoint = null;
       let minIndex = -1; // 记录最低点的索引
-      console.log("initialTrajectoryPoints", this.initialTrajectoryPoints)
+
       // 转换并找出最低点
       this.trajectoryPoints = this.initialTrajectoryPoints.map((pointObj, index) => {
         // 从对象中提取x,y,z值
@@ -93,8 +99,10 @@ export default {
       // 生成完整轨迹
       this.generateFullTrajectory();
 
+      console.log("*****************trajectoryPoints:", this.trajectoryPoints)
       this.receiveTrajectoryPoints(this.trajectoryPoints);
-      this.receiveTennisBallShadow(this.tennisBallShadow);
+
+      this.$store.commit("hawkeye/receiveTennisBallShadow", this.tennisBallShadow);
     },
 
     // // 1.根据水平方向分量来设置摄像头位置
@@ -131,17 +139,20 @@ export default {
       basePosition.z += this.constants.FIXED_DISTANCE
       basePosition.y += 0.1
 
-      this.camera.position.copy(basePosition);
-      this.camera.lookAt(landingPoint);
+      //更新摄像头位置
+      this.$store.commit("hawkeye/updateCameraByTarget", {
+        basePosition,
+        landingPoint,
+      })
+
       // 5. 更新控制器目标点
-      this.controls.target.copy(landingPoint);
-      this.controls.update();
+      this.$store.commit("hawkeye/updateControlsByTarget", landingPoint);
     },
 
     generateFullTrajectory() {
       // 清理现有轨迹
       if (this.fullTrajectoryMesh) {
-        this.scene.remove(this.fullTrajectoryMesh);
+        this.$store.commit("hawkeye/sceneRemove", this.fullTrajectoryMesh)
       }
 
       // 获取轨迹点
@@ -293,12 +304,12 @@ export default {
         transparent: true,
         opacity: 0.55,
         side: THREE.DoubleSide,
-        clippingPlanes: [this.clippingPlane],
+        clippingPlanes: [this.$store.state.hawkeye.clippingPlane],
         wireframe: false
       });
 
       this.fullTrajectoryMesh = new THREE.Mesh(geometry, material);
-      this.scene.add(this.fullTrajectoryMesh);
+      this.$store.commit("hawkeye/sceneAdd", this.fullTrajectoryMesh)
 
       // 内插函数
       function interpolatePath(originalPoints, pointsPerSegment) {
@@ -320,11 +331,10 @@ export default {
       }
     },
 
-    //创建网球
     createTennisBall() {
       // 如果已有网球，从场景中移除
       if (this.tennisBall) {
-        this.scene.remove(this.tennisBall);
+        this.$store.commit("hawkeye/sceneRemove", this.tennisBall)
       }
 
       const geometry = new THREE.SphereGeometry(this.constants.BALL_RADIUS, 32, 32);
@@ -398,9 +408,7 @@ export default {
         this.tennisBall.position.copy(this.trajectoryPoints[0]);
       }
 
-      this.scene.add(this.tennisBall);
-
-      this.receiveTennisBall(this.tennisBall);
+      this.$store.commit("hawkeye/addaTennisBall", this.tennisBall);
 
       // 更新阴影
       this.updateTennisBallShadow();
@@ -410,7 +418,7 @@ export default {
     updateTennisBallShadow() {
       // 移除旧的阴影
       if (this.tennisBallShadow) {
-        this.scene.remove(this.tennisBallShadow);
+        this.$store.commit("hawkeye/sceneRemove", this.tennisBallShadow)
       }
 
       this.tennisBallShadow = this.createEllipticalShadow(
@@ -418,7 +426,8 @@ export default {
         this.tennisBall.position.z,
         0.3
       );
-      this.scene.add(this.tennisBallShadow);
+      this.$store.commit("hawkeye/sceneAdd", this.tennisBallShadow)
+      // this.$store.state.scene.add(this.tennisBallShadow);
     },
 
     // 创建椭圆形阴影
@@ -512,21 +521,39 @@ export default {
       shadow.position.set(x, 0.001, z);
       shadow.rotation.z = rotationAngle;
 
-      // 触发相机动画（如果需要）
-      this.animateCameraToTopView(x, z);
+      setTimeout(() => {
+        // 触发相机动画
+        this.animateCameraToTopView(x, z);
+        //在这里消除轨迹
+        if (this.fullTrajectoryMesh) {
+          this.$store.commit("hawkeye/sceneRemove", this.fullTrajectoryMesh)
+          this.fullTrajectoryMesh = null;
+        }
+      }, 500);
+
 
       return shadow;
     },
 
     //摄像机落点动画
     animateCameraToTopView(collisionPoint_x, collisionPoint_z) {
+      console.log("this.distance:", this.distance)
+      let distance = this.distance
+      if (distance * 10 < 0.2) {
+        distance = 0.115
+      } else if (distance * 10 > 0.5) {
+        distance = 0.2
+      } else {
+        distance *= 5
+      }
       // 目标位置：落点正上方偏高一点
-      const startPos = this.camera.position.clone();
+      const startPos = this.$store.state.hawkeye.camera.position.clone();
       const toPos = new THREE.Vector3(
         collisionPoint_x,
-        0.5, // 你可以调整高度
+        distance, // 你可以调整高度(0.2/0.5)
         collisionPoint_z
       );
+      console.log("distance:", distance)
       const startAngle = 0;
       let animObj = { t: 0 };
       gsap.to(animObj, {
@@ -534,16 +561,19 @@ export default {
         duration: 1.5,
         onUpdate: () => {
           // 插值摄像机位置
-          this.camera.position.lerpVectors(startPos, toPos, animObj.t);
+          this.$store.state.hawkeye.camera.position.lerpVectors(startPos, toPos, animObj.t);
           // 插值视角角度
           const angle = startAngle;
           const lookX = collisionPoint_x;//-0.1防止90°，cos为0
           const lookZ = collisionPoint_z;//-1防止90°，x偏移1
-          this.camera.lookAt(lookX, 0.001, lookZ);
-          this.controls.target.set(lookX, 0.001, lookZ);
-          this.controls.update();
+          this.$store.state.hawkeye.camera.lookAt(lookX, 0.001, lookZ);
+          this.$store.state.hawkeye.controls.target.set(lookX, 0.001, lookZ);
+          this.$store.state.hawkeye.controls.update();
         },
       });
+      setTimeout(() => {
+        this.cardShow = true
+      }, 1600);
     },
 
   },

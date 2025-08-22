@@ -2,13 +2,15 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import user from './modules/user'
 import app from './modules/app'
+import hawkeye from './modules/hawkeye'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
     modules: {
         user,
-        app
+        app,
+        hawkeye
     },
     // 全局状态
     state: {
