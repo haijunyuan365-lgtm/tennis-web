@@ -5,21 +5,22 @@ import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 const routes = [
   {
+    path: '/huanying',
+    component: () => import("../views/huanying.vue")
+  },
+  {
     path: '/login',
     component: () => import("../views/login.vue")
   },
   {
     path: '/',
-    redirect: '/login ',
+    redirect: '/huanying ',
   },
   {
     path: '/tennis3D',
     component: () => import("../views/Tennis3DShotChart.vue")
   },
-  {
-    path: '/huanying',
-    component: () => import("../views/huanying.vue")
-  },
+  
   {
     path: '/mode',
     component: () => import("../views/mode.vue")

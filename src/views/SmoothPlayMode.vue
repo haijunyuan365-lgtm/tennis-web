@@ -78,7 +78,7 @@
     <!-- 底部控制栏 -->
     <el-row class="bottom-controls" type="flex" justify="space-between" align="middle">
       <el-col :span="12" class="left-controls">
-        <!-- <el-button size="small" @click="showStats">数据统计</el-button> -->
+        <el-button size="small" @click="showStats">数据统计</el-button>
         <el-button size="small" @click="challenge">挑战</el-button>
         <span class="action-info" v-if="currentSelectedRow">
           [{{ currentSelectedRow.player }}] {{ currentSelectedRow.direction === 'A' ? 'A→B' : 'B→A' }}
@@ -292,7 +292,7 @@ export default {
       this.activeView = view;
       if (this.isDisable) {
         this.isDisable = !this.isDisable
-        this.$router.push('/matching')
+        this.$router.push('/SmoothPlayMode')
       }
       this.$message.info(`切换视图: ${view}`);
     },
@@ -308,7 +308,7 @@ export default {
       this.activeView = '2d'
       if (this.isDisable) {
         this.isDisable = !this.isDisable
-        this.$router.push('/matching')
+        this.$router.push('/SmoothPlayMode')
       }
     },
     challenge() {
